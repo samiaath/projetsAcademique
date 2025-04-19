@@ -1,0 +1,50 @@
+<div class="h-screen flex bg-[#E9F2FB]">
+    <!-- Logo in the top-left -->
+    <img src="assets/logo.svg" alt="CollabAcad" class="w-40 absolute top-5 left-5" />
+  
+    <!-- Left side illustration -->
+    <div class="w-1/2 p-10 flex flex-col justify-center items-center text-center">
+      <h1 class="text-2xl font-semibold text-[#1A1A1A] leading-relaxed drop-shadow">
+        Join the future of <br />
+        <span class="text-[#1A1A1A] font-bold text-3xl">academic project management</span>
+      </h1>
+      <img src="assets/login.svg" alt="Register Illustration" class="mt-8 w-[300px]" />
+    </div>
+  
+    <!-- Register Form -->
+    <div class="w-2/3 p-10 flex flex-col justify-center">
+      <h2 class="text-6xl font-light text-center mb-8 font-montecarlo">Create an Account</h2>
+  
+      <form class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
+        <label>Name</label>
+        <input type="text" class="p-3 rounded bg-white border border-gray-300" />
+  
+        <label>Email</label>
+        <input type="email" class="p-3 rounded bg-white border border-gray-300" />
+  
+        <label>Password</label>
+        <input type="password" class="p-3 rounded bg-white border border-gray-300" />
+  
+        <label>Role</label>
+        <select class="p-4  pr-1 rounded bg-white border border-gray-300">
+          <option value="" disabled selected>Select your role</option>
+          <option value="student">Student</option>
+          <option value="professor">Professor</option>
+        </select>
+  
+        <button type="submit" class="bg-[#4389f8] text-white text-base px-5 py-2.5 w-32 rounded self-center">
+          Register
+        </button>
+  
+        <a href="#" class="text-center text-[#4389f8] mt-2 text-sm">Already have an account?</a>
+      </form>
+  
+      <a
+  routerLink="/login"
+  class="absolute top-5 right-5 bg-[#4389f8] text-white px-4 py-2 rounded text-center"
+>
+  Login
+</a>
+    </div>
+  </div>
+  

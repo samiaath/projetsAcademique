@@ -1,0 +1,40 @@
+<div class="h-screen flex bg-[#E9F2FB]">
+    <!-- Left side -->
+    <div class="w-1/2 p-10 flex flex-col justify-center items-center text-center">
+        <img src="assets/logo.svg" alt="CollabAcad" class="w-40 absolute top-5 left-5" />
+
+      <h1 class="text-2xl font-semibold text-[#1A1A1A] leading-relaxed drop-shadow">
+        Streamline the management of<br />
+        your <br />
+        <span class="text-[#1A1A1A] font-bold text-3xl">academic projects</span>
+      </h1>
+      <img src="assets/login.svg" alt="Login Illustration" class="mt-8 w-[300px]" />
+    </div>
+  
+    
+    <div class="w-2/3 p-10 flex flex-col justify-center">
+        <h2 class="text-6xl font-light text-center mb-8 font-montecarlo">Welcome !</h2>
+
+        <form (ngSubmit)="onLogin()" class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="email" name="email" required
+                   class="p-3 rounded bg-white border border-gray-300" />
+          
+            <label>Password</label>
+            <input type="password" [(ngModel)]="password" name="password" required
+                   class="p-3 rounded bg-white border border-gray-300" />
+          
+            <button type="submit" class="bg-[#4389f8] text-white px-4 py-2 w-28 rounded self-center">Login</button>
+          
+            <a href="#" class="text-center text-[#4389f8] mt-2 text-sm">Forgot Password?</a>
+          </form>
+          
+      <a
+  routerLink="/register"
+  class="absolute top-5 right-5 bg-[#4389f8] text-white px-4 py-2 rounded text-center"
+>
+  Get Started
+</a>
+
+    </div>
+  </div>  
