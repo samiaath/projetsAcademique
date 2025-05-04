@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './pages/layout/layout.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ActivateAccountComponent } from './pages/activate-account/activate-account.component';
 
 
 export const routes: Routes = [
@@ -17,6 +18,14 @@ export const routes: Routes = [
         (m) => m.RegisterComponent
       ),
   },
+  {
+    path: 'activate-account',
+    loadComponent: () =>
+      import('./pages/activate-account/activate-account.component').then(
+        (m) => m.ActivateAccountComponent
+      ),
+  },
+ 
 
   
   {
@@ -54,6 +63,7 @@ export const routes: Routes = [
       },
       
       { path: '', redirectTo: 'home', pathMatch: 'full' },
+      
     ],
   },
 
@@ -63,4 +73,5 @@ export const routes: Routes = [
     redirectTo: '/login',
     pathMatch: 'full',
   },
+  
 ];

@@ -15,27 +15,26 @@
     <div class="w-2/3 p-10 flex flex-col justify-center">
       <h2 class="text-6xl font-light text-center mb-8 font-montecarlo">Create an Account</h2>
   
-      <form class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
-        <label>Name</label>
-        <input type="text" class="p-3 rounded bg-white border border-gray-300" />
-  
-        <label>Email</label>
-        <input type="email" class="p-3 rounded bg-white border border-gray-300" />
-  
-        <label>Password</label>
-        <input type="password" class="p-3 rounded bg-white border border-gray-300" />
-  
-        <label>Role</label>
-        <select class="p-4  pr-1 rounded bg-white border border-gray-300">
-          <option value="" disabled selected>Select your role</option>
-          <option value="student">Student</option>
-          <option value="professor">Professor</option>
-        </select>
-  
-        <button type="submit" class="bg-[#4389f8] text-white text-base px-5 py-2.5 w-32 rounded self-center">
-          Register
-        </button>
-  
+     <form (ngSubmit)="onSubmit()" class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
+  <label>Name</label>
+  <input [(ngModel)]="formData.name" name="name" type="text" class="p-3 rounded bg-white border border-gray-300" />
+
+  <label>Email</label>
+  <input [(ngModel)]="formData.email" name="email" type="email" class="p-3 rounded bg-white border border-gray-300" />
+
+  <label>Password</label>
+  <input [(ngModel)]="formData.password" name="password" type="password" class="p-3 rounded bg-white border border-gray-300" />
+
+  <label>Role</label>
+  <select [(ngModel)]="formData.role" name="role" class="p-4 pr-1 rounded bg-white border border-gray-300">
+    <option value="" disabled selected>Select your role</option>
+    <option value="student">Student</option>
+    <option value="professor">Professor</option>
+  </select>
+
+  <button type="submit" class="bg-[#4389f8] text-white text-base px-5 py-2.5 w-32 rounded self-center">
+    Register
+  </button>
         <a href="#" class="text-center text-[#4389f8] mt-2 text-sm">Already have an account?</a>
       </form>
   

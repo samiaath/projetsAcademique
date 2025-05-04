@@ -17,11 +17,11 @@
 
         <form (ngSubmit)="onLogin()" class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
             <label>Email</label>
-            <input type="email" [(ngModel)]="email" name="email" required
+            <input type="email" [(ngModel)]="authRequest.email" name="email" required
                    class="p-3 rounded bg-white border border-gray-300" />
           
             <label>Password</label>
-            <input type="password" [(ngModel)]="password" name="password" required
+            <input type="password" [(ngModel)]="authRequest.password" name="password" required
                    class="p-3 rounded bg-white border border-gray-300" />
           
             <button type="submit" class="bg-[#4389f8] text-white px-4 py-2 w-28 rounded self-center">Login</button>
