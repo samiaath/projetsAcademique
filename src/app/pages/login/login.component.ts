@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterModule,FormsModule],
+  imports: [RouterModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -16,11 +16,26 @@ export class LoginComponent {
   constructor(private router: Router) {}
 
   onLogin() {
-    if (this.email === 'user@gmail.com' && this.password === 'user') {
-      // Redirect to home page
-      this.router.navigate(['/layout/home']);
+    const storedUsers = localStorage.getItem('users');
+    
+    if (storedUsers) {
+      const users = JSON.parse(storedUsers);
+      
+      // Cherche l'utilisateur avec email et mot de passe correspondants
+      const user = users.find((u: any) => u.email === this.email && u.password === this.password);
+      console.log(user);
+      
+      if (user) {
+        if (user.role === 'student') {
+          this.router.navigate(['/Etudiant/layout']);
+        } else if (user.role === 'professor') {
+          this.router.navigate(['/Enseignant/layout2']);
+        }
+      } else {
+        alert('Incorrect email or password');
+      }
     } else {
-      alert('Invalid credentials! Please try again.');
+      alert('No registered users found');
     }
   }
 }

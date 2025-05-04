@@ -17,22 +17,22 @@
   
       <form class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
         <label>Name</label>
-        <input type="text" class="p-3 rounded bg-white border border-gray-300" />
+        <input type="text" [(ngModel)]="name" name="name" class="p-3 rounded bg-white border border-gray-300" />
   
         <label>Email</label>
-        <input type="email" class="p-3 rounded bg-white border border-gray-300" />
+        <input type="email" [(ngModel)]="email" name="email" class="p-3 rounded bg-white border border-gray-300" />
   
         <label>Password</label>
-        <input type="password" class="p-3 rounded bg-white border border-gray-300" />
+        <input type="password" [(ngModel)]="password" name="password" class="p-3 rounded bg-white border border-gray-300" />
   
         <label>Role</label>
-        <select class="p-4  pr-1 rounded bg-white border border-gray-300">
+        <select [(ngModel)]="role" name="role" class="p-4  pr-1 rounded bg-white border border-gray-300">
           <option value="" disabled selected>Select your role</option>
           <option value="student">Student</option>
           <option value="professor">Professor</option>
         </select>
   
-        <button type="submit" class="bg-[#4389f8] text-white text-base px-5 py-2.5 w-32 rounded self-center">
+        <button type="submit" (click)="onRegister()" class="bg-[#4389f8] text-white text-base px-5 py-2.5 w-32 rounded self-center">
           Register
         </button>
   

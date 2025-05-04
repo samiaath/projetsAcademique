@@ -1,0 +1,222 @@
+<div class="notification-container px-6 py-8 bg-gray-50 min-h-screen">
+  <!-- Header with counter -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <h1 class="text-2xl font-bold text-gray-800">Notifications</h1>
+      <div class="px-2 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+        {{ getUnreadCount() }}
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <button 
+        class="text-sm text-blue-600 hover:text-blue-800 font-medium" 
+        *ngIf="getUnreadCount() > 0"
+        (click)="markAllAsRead()">
+        Mark all as read
+      </button>
+      <button 
+        class="text-sm text-[#C74A99] hover:text-[#C74A99]/80 font-medium" 
+        *ngIf="notifications.length > 0"
+        (click)="openConfirmationModalForAll()">
+        Delete all
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification filters -->
+  <div class="flex mb-6 border-b border-gray-200">
+    <button 
+      class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-700 border-b-2 border-transparent"
+      [ngClass]="{'text-blue-700 border-blue-600': activeFilter === 'all'}"
+      (click)="filterNotifications('all')">
+      All
+    </button>
+    <button 
+      class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-700 border-b-2 border-transparent"
+      [ngClass]="{'text-blue-700 border-blue-600': activeFilter === 'unread'}"
+      (click)="filterNotifications('unread')">
+      Unread
+    </button>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="filteredNotifications.length === 0" class="flex flex-col items-center justify-center py-12">
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900">No notifications</h3>
+    <p class="text-gray-500 text-sm">You're all caught up!</p>
+  </div>
+
+  <!-- Notifications list -->
+  <div class="space-y-6">
+    <!-- Aujourd'hui -->
+    <div *ngIf="groupedNotifications.today.length > 0">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Aujourd'hui</h2>
+      <div class="space-y-3">
+        <ng-container *ngFor="let notif of groupedNotifications.today">
+          <div 
+            class="relative flex items-start gap-3 p-4 rounded-lg border shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md"
+            [ngClass]="{'bg-[#C74A99]/10 border-[#C74A99]/20': !notif.isRead, 'bg-white border-gray-200': notif.isRead}"
+            (click)="markAsRead(notif)"
+          >
+            <!-- Delete button -->
+            <button 
+              class="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+              (click)="openConfirmationModal(notif.id!, $event)">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <!-- Avatar or icon -->
+            <div class="flex-shrink-0">
+              <img src="../../../../assets/icons/bell-notif.svg" alt="">  
+            </div>
+
+            <!-- Content -->
+            <div class="flex-grow">
+              <div class="flex justify-between items-start gap-2">
+                <div class="flex-grow">
+                  <p class="text-gray-900 font-medium text-sm">
+                    {{ notif.title }}
+                  </p>
+                  <p class="text-gray-700 text-sm mt-1">
+                    <span class="font-medium">{{ notif.sender }}</span> {{ notif.message }}
+                  </p>
+                </div>
+
+                <!-- Time indicator -->
+                <div class="text-xs text-gray-500 flex items-center gap-1 pr-0 pt-7">
+                  <span>{{ notif.time }}</span>
+                  <div *ngIf="!notif.isRead" class="w-2 h-2 rounded-full bg-[#C74A99] ml-1"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Hier -->
+    <div *ngIf="groupedNotifications.yesterday.length > 0">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Hier</h2>
+      <div class="space-y-3">
+        <ng-container *ngFor="let notif of groupedNotifications.yesterday">
+          <div 
+            class="relative flex items-start gap-3 p-4 rounded-lg border shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md"
+            [ngClass]="{'bg-[#C74A99]/10 border-[#C74A99]/20': !notif.isRead, 'bg-white border-gray-200': notif.isRead}"
+            (click)="markAsRead(notif)"
+          >
+            <!-- Delete button -->
+            <button 
+              class="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+              (click)="openConfirmationModal(notif.id!, $event)">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <!-- Avatar or icon -->
+            <div class="flex-shrink-0">
+              <img src="../../../../assets/icons/bell-notif.svg" alt="">  
+            </div>
+
+            <!-- Content -->
+            <div class="flex-grow">
+              <div class="flex justify-between items-start gap-2">
+                <div class="flex-grow">
+                  <p class="text-gray-900 font-medium text-sm">
+                    {{ notif.title }}
+                  </p>
+                  <p class="text-gray-700 text-sm mt-1">
+                    <span class="font-medium">{{ notif.sender }}</span> {{ notif.message }}
+                  </p>
+                </div>
+
+                <!-- Time indicator -->
+                <div class="text-xs text-gray-500 flex items-center gap-1 pr-0 pt-7">
+                  <span>{{ notif.time }}</span>
+                  <div *ngIf="!notif.isRead" class="w-2 h-2 rounded-full bg-[#C74A99] ml-1"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Plus ancien -->
+    <div *ngIf="groupedNotifications.older.length > 0">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Plus ancien</h2>
+      <div class="space-y-3">
+        <ng-container *ngFor="let notif of groupedNotifications.older">
+          <div 
+            class="relative flex items-start gap-3 p-4 rounded-lg border shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md"
+            [ngClass]="{'bg-[#C74A99]/10 border-[#C74A99]/20': !notif.isRead, 'bg-white border-gray-200': notif.isRead}"
+            (click)="markAsRead(notif)"
+          >
+            <!-- Delete button -->
+            <button 
+              class="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+              (click)="openConfirmationModal(notif.id!, $event)">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <!-- Avatar or icon -->
+            <div class="flex-shrink-0">
+              <img src="../../../../assets/icons/bell-notif.svg" alt="">  
+            </div>
+
+            <!-- Content -->
+            <div class="flex-grow">
+              <div class="flex justify-between items-start gap-2">
+                <div class="flex-grow">
+                  <p class="text-gray-900 font-medium text-sm">
+                    {{ notif.title }}
+                  </p>
+                  <p class="text-gray-700 text-sm mt-1">
+                    <span class="font-medium">{{ notif.sender }}</span> {{ notif.message }}
+                  </p>
+                </div>
+
+                <!-- Time indicator -->
+                <div class="text-xs text-gray-500 flex items-center gap-1 pr-0 pt-7">
+                  <span>{{ notif.time }}</span>
+                  <span *ngIf="!isToday(notif.createdAt!)">• {{ notif.date }}</span>
+                  <div *ngIf="!notif.isRead" class="w-2 h-2 rounded-full bg-[#C74A99] ml-1"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmation -->
+  <div *ngIf="showConfirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Confirmer la suppression</h2>
+      <p class="text-gray-600 mb-6">
+        {{ isDeleteAll ? 'Êtes-vous sûr de vouloir supprimer toutes les notifications ?' : 'Êtes-vous sûr de vouloir supprimer cette notification ?' }}
+      </p>
+      <div class="flex justify-end gap-3">
+        <button 
+          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+          (click)="closeConfirmationModal()">
+          Annuler
+        </button>
+        <button 
+          class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded"
+          (click)="confirmDelete()">
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

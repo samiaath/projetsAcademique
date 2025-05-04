@@ -1,0 +1,485 @@
+<div class="flex p-6 gap-6 min-h-screen bg-[#F9FAFB]">
+  <!-- Projects List Panel -->
+  <div class="bg-[#EEECEC] rounded-2xl shadow-lg w-1/4 p-6 flex flex-col">
+    <h2 class="text-xl font-semibold mb-6 text-gray-800">All Projects</h2>
+
+    <!-- Search Box -->
+    <div class="mb-4">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        placeholder="Search Projects..."
+        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
+    </div>
+
+    <!-- Projects List -->
+    <div class="flex-1 overflow-y-auto space-y-2 pr-1">
+      <div
+        *ngFor="let project of filteredProjects"
+        class="cursor-pointer p-3 hover:bg-white rounded-lg border-l-4 transition-all duration-200"
+        [ngClass]="{
+          'bg-white border-[#1FA89E]': currentProject?.id === project.id,
+          'border-transparent': currentProject?.id !== project.id
+        }"
+        (click)="viewProject(project)"
+      >
+        {{ project.title }}
+      </div>
+    </div>
+
+    <!-- Add New Project Button -->
+    <div class="mt-6">
+      <button
+        (click)="createNewProject()"
+        class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2"
+      >
+        <span class="text-[#1FA89E] text-xl">+</span> Add New Project
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col gap-6">
+    <!-- Create/Edit Project Form -->
+    <div *ngIf="isCreatingProject || isEditingProject" class="flex gap-6">
+      <!-- Form -->
+      <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 flex-1">
+        <form [formGroup]="projectForm" (ngSubmit)="confirmSaveProject()" class="flex flex-col h-full">
+          <h2 class="text-xl font-semibold mb-6 text-gray-800">General Informations</h2>
+
+          <!-- Project Name -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <input
+                formControlName="name"
+                type="text"
+                placeholder="Enter project name"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+              <div class="flex gap-2">
+                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="editField('name')">
+                  <i class="fas fa-pencil-alt text-blue-500"></i>
+                </button>
+                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteField('name')">
+                  <i class="fas fa-trash-alt text-red-500"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Description -->
+          <div class="mb-4">
+            <div class="flex items-start gap-2">
+              <textarea
+                formControlName="description"
+                placeholder="Describe your project"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 h-28"
+              ></textarea>
+              <div class="flex gap-2">
+                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="editField('description')">
+                  <i class="fas fa-pencil-alt text-blue-500"></i>
+                </button>
+                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteField('description')">
+                  <i class="fas fa-trash-alt text-red-500"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assigned To -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2">
+              <select
+                formControlName="assignedTo"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="" disabled>Select a group</option>
+                <option value="Info 2A 2023-2024">Info 2A 2023-2024</option>
+                <option value="Info 2B 2023-2024">Info 2B 2023-2024</option>
+                <option value="Info 3A 2023-2024">Info 3A 2023-2024</option>
+                <option value="Info 3B 2023-2024">Info 3B 2023-2024</option>
+              </select>
+              <div class="flex gap-2">
+                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="editField('assignedTo')">
+                  <i class="fas fa-pencil-alt text-blue-500"></i>
+                </button>
+                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteField('assignedTo')">
+                  <i class="fas fa-trash-alt text-red-500"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-3 mt-auto">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="!projectForm.valid"
+              class="px-4 py-2 bg-[#1FA89E] text-white rounded-lg hover:bg-[#1A8C83] disabled:opacity-50"
+            >
+              Save and Publish
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Panel with Calendar and Max Students -->
+      <div class="w-1/3 flex flex-col gap-6">
+        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6">
+          <label class="block text-lg font-medium text-gray-700 mb-4">Maximum Number of Students per Group</label>
+          <input
+            formControlName="maxStudents"
+            type="number"
+            min="1"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+
+        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 flex-1">
+          <h2 class="text-lg font-semibold mb-4">Deadline</h2>
+          <div class="flex justify-between items-center mb-4">
+            <button (click)="prevMonth()" class="text-gray-600 hover:text-gray-800">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="font-medium text-gray-700">{{ currentMonthName }} {{ currentYear }}</div>
+            <button (click)="nextMonth()" class="text-gray-600 hover:text-gray-800">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-600 mb-2">
+            <div *ngFor="let day of weekDays">{{ day }}</div>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1">
+            <div
+              *ngFor="let day of calendarDays"
+              [ngClass]="{
+                'text-gray-400': !day.isCurrentMonth,
+                'bg-blue-100': isToday(day),
+                'bg-[#1FA89E] text-white': isSelectedDate(day),
+                'bg-red-500 text-white': hasDeadlineOnDay(day) && !isSelectedDate(day),
+                'cursor-pointer hover:bg-gray-100': true
+              }"
+              [ngStyle]="{'background-color': getCalendarDayColor(day)}"
+              (click)="selectDate(day)"
+              class="aspect-square flex items-center justify-center text-sm rounded-md"
+            >
+              {{ day.day }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Section for Create/Edit Mode -->
+    <ng-container *ngIf="isCreatingProject || isEditingProject">
+      <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 w-full">
+        <h2 class="text-lg font-semibold mb-4">Tasks</h2>
+        <div class="space-y-3" formArrayName="tasks">
+          <div *ngFor="let task of tasksArray.controls; let i = index" [formGroupName]="i" class="flex items-center gap-2">
+            <input formControlName="title" placeholder="Task Title" class="w-full p-3 border border-gray-300 rounded-lg" readonly (click)="openEditTaskModal(i)">
+            <div class="flex gap-2">
+              <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="openEditTaskModal(i)">
+                <i class="fas fa-pencil-alt text-blue-500"></i>
+              </button>
+              <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteTask(i)">
+                <i class="fas fa-trash-alt text-red-500"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button type="button" (click)="addTaskToForm()" class="mt-4 w-full bg-[#1FA89E] hover:bg-[#1A8C83] text-white py-2 px-4 rounded-lg">
+          + Add Task
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Project View -->
+    <ng-container *ngIf="currentProject && !isCreatingProject && !isEditingProject">
+      <div class="flex gap-6">
+        <!-- Project Description Card (Next to Projects List) -->
+        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 flex-1">
+          <h1 class="text-2xl font-bold mb-2 flex items-center gap-2">
+            {{ currentProject.title }}
+            <button class="p-1 hover:bg-gray-100 rounded-full" (click)="editProject()">
+              <i class="fas fa-pencil-alt text-blue-500"></i>
+            </button>
+            <button class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteProject()">
+              <i class="fas fa-trash-alt text-red-500"></i>
+            </button>
+          </h1>
+
+          <h2 class="font-medium mb-2 flex items-center gap-2 mt-4">
+            Project Description
+            <button class="p-1 hover:bg-gray-100 rounded-full">
+              <i class="fas fa-pencil-alt text-blue-500"></i>
+            </button>
+            <button class="p-1 hover:bg-gray-100 rounded-full">
+              <i class="fas fa-trash-alt text-red-500"></i>
+            </button>
+          </h2>
+          <p class="text-gray-700 mb-4">{{ currentProject.description }}</p>
+
+          <h2 class="font-medium mb-2 flex items-center gap-2">
+            Assigned To
+            <button class="p-1 hover:bg-gray-100 rounded-full">
+              <i class="fas fa-pencil-alt text-blue-500"></i>
+            </button>
+            <button class="p-1 hover:bg-gray-100 rounded-full">
+              <i class="fas fa-trash-alt text-red-500"></i>
+            </button>
+          </h2>
+          <p class="text-gray-700 mb-4">{{ currentProject.assignedTo }}</p>
+        </div>
+
+        <!-- Calendar (Next to Description Card) -->
+        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 w-1/3">
+          <h2 class="text-lg font-semibold mb-4">Deadline</h2>
+          <div class="mb-4 text-xl font-medium text-gray-900">
+            {{ currentProject.dueDate }}
+          </div>
+          <div class="flex justify-between items-center mb-4">
+            <button (click)="prevMonth()" class="text-gray-600 hover:text-gray-800">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="font-medium text-gray-700">{{ currentMonthName }} {{ currentYear }}</div>
+            <button (click)="nextMonth()" class="text-gray-600 hover:text-gray-800">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-600 mb-2">
+            <div *ngFor="let day of weekDays">{{ day }}</div>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1">
+            <div
+              *ngFor="let day of calendarDays"
+              [ngClass]="{
+                'text-gray-400': !day.isCurrentMonth,
+                'bg-blue-100': isToday(day),
+                'bg-[#1FA89E] text-white': isSelectedDate(day),
+                'bg-red-500 text-white': hasDeadlineOnDay(day) && !isSelectedDate(day),
+                'cursor-pointer hover:bg-gray-100': true
+              }"
+              [ngStyle]="{'background-color': getCalendarDayColor(day)}"
+              (click)="selectDate(day)"
+              class="aspect-square flex items-center justify-center text-sm rounded-md"
+            >
+              {{ day.day }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Card (Below Description and Calendar) -->
+      <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 w-full">
+        <h2 class="text-lg font-semibold mb-4">Tasks</h2>
+        <div class="space-y-3">
+          <div *ngFor="let task of currentProject.tasks; let i = index"
+               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border-l-4"
+               [ngStyle]="{'border-color': getTaskColor(i)}"
+               [ngClass]="{'hover:bg-gray-100': true}"
+          >
+            <div class="flex items-center gap-3">
+              <span class="font-medium">{{ task.id < 10 ? '0' + task.id : task.id }}</span>
+              <span>{{ task.name }}</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span [ngClass]="{
+                'text-red-500': isCloseToDeadline(task.dueDate, 2),
+                'text-amber-500': isCloseToDeadline(task.dueDate, 5),
+                'text-green-500': !isCloseToDeadline(task.dueDate, 5)
+              }">Deadline: {{ formatTaskDeadline(task.dueDate) }}</span>
+              <div class="flex gap-2">
+                <button class="p-1 hover:bg-gray-100 rounded-full" (click)="editTaskInProject(i)">
+                  <i class="fas fa-pencil-alt text-blue-500"></i>
+                </button>
+                <button class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteTaskFromProject(i)">
+                  <i class="fas fa-trash-alt text-red-500"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Task Button -->
+        <div class="mt-4">
+          <button
+            (click)="openTaskModal()"
+            class="w-full bg-[#1FA89E] hover:bg-[#1A8C83] text-white font-semibold py-2 px-4 rounded-lg"
+          >
+            + Add Task
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Confirmation Popup -->
+  <div *ngIf="showConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-1/3">
+      <h2 class="text-xl font-semibold mb-4">Confirm Project Creation</h2>
+      <p class="mb-4">Are you sure you want to save and publish this project?</p>
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="showConfirmation = false"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="saveProject()"
+          class="px-4 py-2 bg-[#1FA89E] text-white rounded-lg hover:bg-[#1A8C83]"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Modal for Adding Tasks (Project View Mode) -->
+  <div *ngIf="showTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-1/3">
+      <h2 class="text-xl font-semibold mb-4">New Task</h2>
+      <form [formGroup]="taskForm" (ngSubmit)="addTask()">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Task Title</label>
+          <input
+            formControlName="title"
+            type="text"
+            placeholder="Enter task title"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Task Description</label>
+          <textarea
+            formControlName="description"
+            placeholder="Describe your task"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 h-24"
+          ></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Deliverable</label>
+          <input
+            formControlName="deliverable"
+            type="text"
+            placeholder="Enter deliverable"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+          <input
+            formControlName="startDate"
+            type="date"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Deadline</label>
+          <input
+            formControlName="deadline"
+            type="date"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            (click)="closeTaskModal()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!taskForm.valid"
+            class="px-4 py-2 bg-[#1FA89E] text-white rounded-lg hover:bg-[#1A8C83] disabled:opacity-50"
+          >
+            Add
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal for Create/Edit Mode -->
+  <div *ngIf="showEditTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-1/3">
+      <h2 class="text-xl font-semibold mb-4">Edit Task</h2>
+      <form [formGroup]="editTaskForm" (ngSubmit)="updateTask()">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Task Title</label>
+          <input
+            formControlName="title"
+            type="text"
+            placeholder="Enter task title"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Task Description</label>
+          <textarea
+            formControlName="description"
+            placeholder="Describe your task"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 h-24"
+          ></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Deliverable</label>
+          <input
+            formControlName="deliverable"
+            type="text"
+            placeholder="Enter deliverable"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+          <input
+            formControlName="startDate"
+            type="date"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-600 mb-1">Deadline</label>
+          <input
+            formControlName="deadline"
+            type="date"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            (click)="closeEditTaskModal()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!editTaskForm.valid"
+            class="px-4 py-2 bg-[#1FA89E] text-white rounded-lg hover:bg-[#1A8C83] disabled:opacity-50"
+          >
+            Update
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

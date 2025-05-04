@@ -15,7 +15,7 @@
     <div class="w-2/3 p-10 flex flex-col justify-center">
         <h2 class="text-6xl font-light text-center mb-8 font-montecarlo">Welcome !</h2>
 
-        <form (ngSubmit)="onLogin()" class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm" name="loginForm" class="flex flex-col gap-4 w-3/4 mx-auto justify-center">
             <label>Email</label>
             <input type="email" [(ngModel)]="email" name="email" required
                    class="p-3 rounded bg-white border border-gray-300" />
