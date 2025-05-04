@@ -6,10 +6,10 @@
         <!-- Top icons -->
         <div class="flex-1 flex flex-col items-center space-y-6">
           <a routerLink="/layout/home"><img src="assets/icons/home.svg" alt="Home" class="w-6 mt-4" /></a>
-          <a routerLink="/layout/projects"><img src="assets/icons/projects.svg" alt="Projects" class="w-6 mt-3" /></a>
+          <a routerLink="/layout/teamProjects"><img src="assets/icons/projects.svg" alt="Projects" class="w-6 mt-3" /></a>
           <a routerLink="/layout/calendar"><img src="assets/icons/calendar.svg" alt="Messages" class="w-6 mt-3" /></a>
           <a routerLink="/layout/notifications"><img src="assets/icons/bell.svg" alt="Notifications" class="w-6 mt-3" /></a>
-          <a routerLink="/layout/settings"><img src="assets/icons/settings.svg" alt="Settings" class="w-6 mt-3" /></a>
+          
         </div>
       
         
@@ -32,9 +32,9 @@
             </div>
           </header>
           
-      <main>
-        <router-outlet></router-outlet> <!-- Child routes will appear here -->
-      </main>
+          <main class="flex-1 overflow-y-auto p-6">
+            <router-outlet></router-outlet>
+          </main>
   
       
     </div>

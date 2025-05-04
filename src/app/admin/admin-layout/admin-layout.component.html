@@ -1,0 +1,50 @@
+<div class="flex h-screen bg-[#F9FAFB]">
+    
+    <aside class="w-20 bg-white shadow-lg flex flex-col items-center py-4">
+      <img src="assets/logo.svg" alt="Logo" class="w-40 mb-6" />
+    
+      <!-- Top icons -->
+      <div class="flex-1 flex flex-col items-center space-y-6">
+        <a routerLink="/admin-layout/admin-home">
+          <img src="assets/icons/home.svg" alt="Home" class="w-6 mt-4" />
+        </a>
+  
+        <a routerLink="/admin-layout/groups-management">
+          <img src="assets/icons/projects.svg" alt="Groups" class="w-6 mt-3" />
+        </a>
+  
+        <a routerLink="/admin-layout/professor-management">
+          <img src="assets/icons/teacher.svg" alt="Professors" class="w-6 mt-3" />
+        </a>
+  
+        <a routerLink="/admin-layout/admin-projects">
+          <img src="assets/icons/folder.svg" alt="Projects" class="w-6 mt-3" />
+        </a>
+  
+        <a routerLink="/admin-layout/admin-management">
+          <img src="assets/icons/settings.svg" alt="Admins" class="w-6 mt-3" />
+        </a>
+      </div>
+  
+      <button (click)="logout()" class="mb-20">
+        <img src="assets/icons/logout.svg" alt="Logout" class="w-8" />
+      </button>
+    </aside>
+    
+    <div class="flex-1 flex flex-col">
+      <header class="flex justify-end items-center px-6 py-4 bg-white">
+        <div class="flex items-center space-x-5 ml-auto mr-7">
+          <img src="assets/icons/user.svg" alt="User" class="w-8" />
+          <div class="text-right">
+            <p class="font-semibold text-sm">{{ name }}</p>
+            <p class="text-xs text-gray-500">{{ email }}</p>
+          </div>
+        </div>
+      </header>
+      
+      <main class="flex-1 overflow-y-auto p-6">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+  

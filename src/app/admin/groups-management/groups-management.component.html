@@ -1,0 +1,164 @@
+<div class="home-container px-8 py-10 bg-cream-white min-h-screen">
+    <!-- Header with Icon -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div class="flex items-center gap-3">
+        <h1 class="text-3xl font-bold text-gray-800">Groups Management</h1>
+      </div>
+      <button 
+        class="bg-[#4F46E5] text-white px-6 py-3 rounded-full flex items-center hover:bg-[#4338CA] transition duration-200"
+        (click)="toggleCreateForm()"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Create New Group</span>
+      </button>
+    </div>
+  
+    <!-- Create Group Form -->
+    <div *ngIf="showCreateForm" class="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Create New Group</h2>
+      <form [formGroup]="groupForm" (ngSubmit)="onSubmit()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Group Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name"
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+              placeholder="e.g. 3 émé anne genie info 2025"
+            />
+            <p *ngIf="groupForm.get('name')?.invalid && groupForm.get('name')?.touched" class="text-red-500 text-xs mt-1">
+              Group name is required
+            </p>
+          </div>
+          <div>
+            <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">Sector</label>
+            <input 
+              type="text" 
+              id="sector" 
+              formControlName="sector"
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+              placeholder="e.g. info"
+            />
+            <p *ngIf="groupForm.get('sector')?.invalid && groupForm.get('sector')?.touched" class="text-red-500 text-xs mt-1">
+              Sector is required
+            </p>
+          </div>
+          <div>
+            <label for="universityYear" class="block text-sm font-medium text-gray-700 mb-1">University Year</label>
+            <input 
+              type="text" 
+              id="universityYear" 
+              formControlName="universityYear"
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+              placeholder="e.g. 2025"
+            />
+            <p *ngIf="groupForm.get('universityYear')?.invalid && groupForm.get('universityYear')?.touched" class="text-red-500 text-xs mt-1">
+              University year is required
+            </p>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Student Emails</label>
+          <div class="mb-2">
+            <textarea
+              formControlName="emailsText"
+              class="w-full min-h-[120px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+              placeholder="Enter one email per line (e.g. student@enicar.ucar.tn)"
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-1">Enter one email per line</p>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-4">
+          <button 
+            type="button" 
+            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            (click)="toggleCreateForm()"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 bg-[#4F46E5] text-white rounded-md hover:bg-[#4338CA]"
+            [disabled]="groupForm.invalid || isSubmitting"
+          >
+            {{ isSubmitting ? 'Creating...' : 'Create Group' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  
+    <!-- Search Bar -->
+    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+      <div class="relative flex-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-3 h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          placeholder="Search groups..." 
+          class="pl-10 pr-4 py-2.5 w-full border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+    </div>
+  
+    <!-- Groups Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        *ngFor="let group of filteredGroups" 
+        class="bg-white rounded-lg shadow-lg p-6 border-l-4 cursor-pointer hover:shadow-xl transition-shadow"
+        [style.border-left-color]="getBorderColor(group.id)"
+        (click)="viewGroupDetails(group.id)"
+      >
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <span class="text-xs font-medium" [style.color]="getTextColor(group.id)">
+              {{ group.sector }}
+            </span>
+            <h3 class="text-lg font-medium text-gray-800 mt-2">{{ group.name }}</h3>
+          </div>
+          <span 
+            class="text-xs px-2 py-1 rounded-full" 
+            [style.background-color]="getBgColor(group.id, 0.1)"
+            [style.color]="getTextColor(group.id)"
+          >
+            {{ group.universityYear }}
+          </span>
+        </div>
+        <div class="flex justify-between items-center mt-14">
+          <span class="text-sm font-medium text-gray-600">
+            {{ group.numberstudents || 0 }} Students
+          </span>
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- No Groups Message -->
+    <div *ngIf="filteredGroups.length === 0" class="text-center py-12">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-800 mb-2">No groups found</h3>
+      <p class="text-gray-500">Create a new group to get started</p>
+    </div>
+  </div>
+  

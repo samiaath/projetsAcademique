@@ -16,7 +16,7 @@ export class LayoutComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private userService: RegisterService     // ← on injecte UserService
+    private userService: RegisterService     
   ) {}
 
   ngOnInit(): void {

@@ -34,7 +34,8 @@ export class LoginComponent {
         const roles = decoded.roles || [];
 
         if (roles.includes('ADMIN')) {
-          window.location.href = 'https://www.youtube.com';
+          this.router.navigate(["/admin-layout/admin-home"]);;
+          
         } else if (roles.includes('student')) {
           this.router.navigate(['/layout/home']);
         } else if (roles.includes('professor')) {
