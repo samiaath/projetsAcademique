@@ -6,15 +6,14 @@ import { FormsModule } from "@angular/forms";
 import { GroupService } from "../services/group.service";
 import { ProjectDetailsService } from "../services/project-details.service";
 import { TeamProject, Task, Submission, FileType } from "../models/project.model";
-
 @Component({
-  selector: "app-project-details",
+  selector: "app-project-details2",
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: "./project-details.component.html",
-  styleUrls: ["./project-details.component.scss"],
+  templateUrl: "./project-details-e.component.html",
+  styleUrls: ["./project-details-e.component.scss"],
 })
-export class ProjectDetailsComponent implements OnInit {
+export class ProjectDetailsEComponent implements OnInit {
   project: TeamProject | null = null;
   groupId: number | null = null;
   projectId: number | null = null;

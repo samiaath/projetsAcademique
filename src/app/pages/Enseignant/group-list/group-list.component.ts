@@ -47,7 +47,7 @@ export class GroupListComponent implements OnInit {
   }
 
   viewProjectDetails(groupId: number, projectId: number): void {
-    this.router.navigate(["/layout2/project-details", groupId, projectId]);
+    this.router.navigate(["/layout2/project-details-e", groupId, projectId]);
   }
 
   loadGroups(): void {
