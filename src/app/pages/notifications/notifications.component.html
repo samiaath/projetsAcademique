@@ -1,30 +1,94 @@
-<div class="calendar-container px-8 py-30 bg-[#F9FAFB] min-h-screen">
-  <div class="flex items-center gap-3 mb-8">
+<div class="calendar-container px-8 py-8 bg-[#F9FAFB] min-h-screen">
+  <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold text-gray-800">Notifications</h1>
+    
+    <div class="flex items-center gap-4">
+      <!-- Filter Controls -->
+      <div class="flex items-center gap-2">
+        <select 
+          [(ngModel)]="filterType" 
+          (change)="applyFilters()"
+          class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All Types</option>
+          <option value="task">Tasks</option>
+          <option value="message">Messages</option>
+        </select>
+        
+        <select 
+          [(ngModel)]="filterRead" 
+          (change)="applyFilters()"
+          class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All Status</option>
+          <option value="read">Read</option>
+          <option value="unread">Unread</option>
+        </select>
+      </div>
+      
+      <!-- Mark All as Read Button -->
+      <button 
+        (click)="markAllAsRead()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
+      >
+        Mark All as Read
+      </button>
+    </div>
   </div>
 
-  <ng-container *ngFor="let notif of notifications">
-    <div
-      class="flex items-center gap-4 p-6 rounded-xl shadow-sm border"
+  <!-- Empty state -->
+  <div *ngIf="filteredNotifications.length === 0" class="flex flex-col items-center justify-center py-16 text-gray-500">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+    </svg>
+    <p class="text-lg font-medium">No notifications found</p>
+    <p class="text-sm">Try changing your filters or check back later</p>
+  </div>
+
+  <!-- Notification List -->
+  <div class="space-y-4">
+    <div 
+      *ngFor="let notif of filteredNotifications" 
+      class="flex items-center gap-4 p-5 rounded-xl shadow-sm border cursor-pointer transition hover:shadow-md"
+      [ngClass]="{
+        'bg-white': notif.isRead,
+        'bg-blue-50': !notif.isRead
+      }"
       [ngStyle]="{
-        'background-color': getRandomPastelColor(),
         'border-color': getRandomBorderColor()
       }"
+      (click)="navigateToNotificationSource(notif)"
     >
-      <svg class="w-6 h-6 text-[#3B82F6] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
-        viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-      </svg>
+      <!-- Icon based on notification type -->
+      <div [innerHTML]="getNotificationIcon(notif.type)"></div>
+      
       <div class="flex justify-between items-center w-full">
-        <p class="text-gray-800 text-sm font-medium">
-          {{ notif.message }} <span class="font-semibold">{{ notif.sender }}</span>
-        </p>
-        <div class="text-xs text-gray-500 flex items-center gap-2">
-          <span>{{ notif.time }}</span>
-          <span>{{ notif.date }}</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <p class="text-gray-800 text-sm font-medium">
+              {{ notif.message }}
+            </p>
+            <span *ngIf="!notif.isRead" class="w-2 h-2 bg-blue-500 rounded-full"></span>
+          </div>
+          <p class="text-xs text-gray-500">From: {{ notif.sender }}</p>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <div class="text-xs text-gray-500 flex flex-col items-end">
+            <span>{{ notif.time }}</span>
+            <span>{{ notif.date }}</span>
+          </div>
+          
+          <button 
+            (click)="deleteNotification(notif, $event)" 
+            class="text-gray-400 hover:text-red-500 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
-  </ng-container>
+  </div>
 </div>

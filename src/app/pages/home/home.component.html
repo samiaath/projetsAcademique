@@ -22,7 +22,18 @@
           {{ project.category }}
         </span>
       </div>
-      <div class="flex justify-between items-center mt-14">
+      
+      <!-- Supervisors section -->
+      <div class="mt-3 mb-3">
+        <div class="flex flex-wrap gap-1">
+          <span *ngFor="let supervisor of project.supervisors" 
+                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {{ supervisor.name }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="flex justify-between items-center mt-6">
         <span class="text-sm font-medium" [ngClass]="{'text-red-500': project.status.includes('Left'),
                                                       'text-yellow-500': project.status.includes('Week'),
                                                       'text-green-500': project.status.includes('Start')}">
@@ -35,9 +46,4 @@
       </div>
     </div>
   </div>
-
-  <button class="bg-[#4F46E5] text-white px-6 py-3 rounded-full mt-12 flex items-center hover:bg-[#4338CA] transition duration-200">
-    <img src="assets/icons/plus.svg" alt="Plus" class="w-5 h-5 mr-3" />
-    <span>Join a project</span>
-  </button>
 </div>

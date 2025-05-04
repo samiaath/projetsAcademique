@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { Project, Task, TeamProject } from '../pages/project.model';
+import { Project, Task, TeamProject, supervisor } from '../pages/project.model';
 import { map } from 'rxjs/operators';
 import { Vote } from '../pages/project.model';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,14 +12,14 @@ export class ProjectService {
   private teamProjects: TeamProject[] = [];
   private teamProjectsSubject: BehaviorSubject<TeamProject[]> = new BehaviorSubject<TeamProject[]>(this.teamProjects);
   private votes: Vote[] = [];
-private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
-  constructor() {}
+  private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
+  
+  constructor(private notificationService: NotificationService) {}
 
   private calculateStatus(dueDate: string): string {
     const today = new Date();
     const due = new Date(dueDate);
     
-
     const diffTime = due.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -33,12 +34,16 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
   getProjects(): Observable<Project[]> {
     const rawProjects = [
       {
-        id: 'web-app-1',
+        id: 1,
         title: 'A web application using HTML, CSS, and JavaScript',
         description: 'Web Development',
         category: 'Web Development',
         categoryColor: 'blue',
         dueDate: '2025-05-12',
+        supervisors: [
+          { id: 1, name: "Monsieur Fouazi Jaidi" },
+          { id: 2, name: "Madame Olfa Lamouchi" }
+        ],
         tasks: [
           {
             id: 1,
@@ -57,12 +62,15 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
         ]
       },
       {
-        id: 'mobile-app-1',
+        id: 2,
         title: 'A mobile application using Android Studio',
         description: 'Mobile Development',
         category: 'Mobile Development',
         categoryColor: 'green',
         dueDate: '2025-05-12',
+        supervisors: [
+          { id: 3, name: "Monsieur Mourad Mittiti" }
+        ],
         tasks: [
           {
             id: 1,
@@ -81,12 +89,16 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
         ]
       },
       {
-        id: 'ml-project-1',
+        id: 3,
         title: 'Machine Learning Model for Sentiment Analysis',
         description: 'Build and evaluate a sentiment classifier',
         category: 'AI/ML',
         categoryColor: 'purple',
         dueDate: '2025-06-20',
+        supervisors: [
+          { id: 1, name: "Monsieur Fouazi Jaidi" },
+          { id: 4, name: "Dr. Ahmed Bennour" }
+        ],
         tasks: [
           {
             id: 1,
@@ -105,12 +117,15 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
         ]
       },
       {
-        id: 'db-system-1',
+        id: 4,
         title: 'Database Management System for Library',
         description: 'Design and implement a DBMS',
         category: 'Database',
         categoryColor: 'orange',
         dueDate: '2025-07-01',
+        supervisors: [
+          { id: 2, name: "Madame Olfa Lamouchi" }
+        ],
         tasks: [
           {
             id: 1,
@@ -129,12 +144,16 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
         ]
       },
       {
-        id: 'cloud-deploy-1',
+        id: 5,
         title: 'Cloud Deployment using Docker and AWS',
         description: 'Deploy a full-stack app to AWS',
         category: 'DevOps',
         categoryColor: 'gray',
         dueDate: '2025-06-15',
+        supervisors: [
+          { id: 3, name: "Monsieur Mourad Mittiti" },
+          { id: 5, name: "Dr. Sami Trabelsi" }
+        ],
         tasks: [
           {
             id: 1,
@@ -171,29 +190,35 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
     return of(projects);
   }
 
-  getProjectById(id: string): Observable<Project | undefined> {
+  getProjectById(id: string | number): Observable<Project | undefined> {
     return this.getProjects().pipe(
-      map(projects => projects.find(p => p.id === id))
+      map(projects => {
+        const projectId = typeof id === 'string' ? parseInt(id, 10) : id;
+        return projects.find(p => p.id === projectId);
+      })
     );
   }
 
-  getTasksByProjectId(id: string): Observable<Task[]> {
+  getTasksByProjectId(id: string | number): Observable<Task[]> {
     return this.getProjectById(id).pipe(
       map(project => project?.tasks || [])
     );
   }
 
   createTeamProject(project: Project, teamProjectName: string, members: string[]): TeamProject {
+    const teamProjectId = this.teamProjects.length + 1;
+    
     const teamProject: TeamProject = {
       ...project,
-      teamProjectId: 'TP' + (this.teamProjects.length + 1),
+      teamProjectId,
       teamProjectName,
       members,
       tasks: project.tasks?.map(task => ({
         ...task,
         status: 'Not Started'
-        
-      })) || []
+      })) || [],
+      voteCount: 0,
+      averageRating: 0
     };
 
     this.teamProjects.push(teamProject);
@@ -204,11 +229,14 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
   getAllTeamProjects(): Observable<TeamProject[]> {
     return this.teamProjectsSubject.asObservable();
   }
-  getTeamProjectsByProjectId(projectId: string): Observable<TeamProject[]> {
+  
+  getTeamProjectsByProjectId(projectId: string | number): Observable<TeamProject[]> {
+    const numericProjectId = typeof projectId === 'string' ? parseInt(projectId, 10) : projectId;
     return this.teamProjectsSubject.pipe(
-      map(teamProjects => teamProjects.filter(tp => tp.id === projectId))
-  );
+      map(teamProjects => teamProjects.filter(tp => tp.id === numericProjectId))
+    );
   }
+  
   // Voting methods
   submitVote(vote: Omit<Vote, 'createdAt'>): Observable<Vote> {
     const newVote: Vote = {
@@ -227,7 +255,7 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
     return of(newVote);
   }
 
-  private updateTeamStats(teamProjectId: string): void {
+  private updateTeamStats(teamProjectId: number): void {
     const team = this.teamProjects.find(t => t.teamProjectId === teamProjectId);
     if (!team) return;
 
@@ -238,27 +266,29 @@ private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
     this.teamProjectsSubject.next(this.teamProjects);
   }
 
-  getVotesForTeam(teamProjectId: string): Observable<Vote[]> {
+  getVotesForTeam(teamProjectId: number): Observable<Vote[]> {
     return this.votesSubject.pipe(
       map(votes => votes.filter(v => v.teamProjectId === teamProjectId))
     );
   }
 
-  getUserVote(userId: string, teamProjectId: string): Observable<Vote | undefined> {
+  getUserVote(userId: string | number, teamProjectId: string | number): Observable<Vote | undefined> {
+    const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+    const numericTeamProjectId = typeof teamProjectId === 'string' ? parseInt(teamProjectId, 10) : teamProjectId;
+    
     return this.votesSubject.pipe(
       map(votes => votes.find(v => 
-        v.userId === userId && 
-        v.teamProjectId === teamProjectId
+        v.userId === numericUserId && 
+        v.teamProjectId === numericTeamProjectId
       ))
     );
   }
 
-  toggleProjectVoting(projectId: string, enabled: boolean): Observable<void> {
+  toggleProjectVoting(projectId: number, enabled: boolean): Observable<void> {
     this.teamProjects = this.teamProjects.map(project => 
       project.id === projectId ? { ...project, votingEnabled: enabled } : project
     );
     this.teamProjectsSubject.next(this.teamProjects);
     return of();
   }
-
 }
