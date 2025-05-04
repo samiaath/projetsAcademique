@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { ActivatedRoute } from '@angular/router';
-import { TeamProject,Project } from '../project.model';
+import { TeamProject, Project } from '../project.model';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -12,11 +12,11 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./vote.component.scss']
 })
 export class VoteComponent implements OnInit {
-  projectId: string = '';
+  projectId: number = 0;
   project?: Project;
   teamProjects: TeamProject[] = [];
-  userRatings: {[teamProjectId: string]: number} = {};
-  userId = 'current-user-id';
+  userRatings: {[key: number]: number} = {};
+  userId = 1; // Changed to number to match model
 
   constructor(
     private projectService: ProjectService,
@@ -24,7 +24,8 @@ export class VoteComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.projectId = this.route.snapshot.paramMap.get('id') || '';
+    const idParam = this.route.snapshot.paramMap.get('id') || '';
+    this.projectId = parseInt(idParam, 10);
     this.loadData();
   }
 
@@ -50,7 +51,7 @@ export class VoteComponent implements OnInit {
     });
   }
 
-  rateTeam(teamProjectId: string, rating: number): void {
+  rateTeam(teamProjectId: number, rating: number): void {
     if (!this.project?.votingEnabled) return;
 
     this.projectService.submitVote({
@@ -73,6 +74,7 @@ export class VoteComponent implements OnInit {
     
     return teamsWithVotes[0];
   }
+  
   toggleVoting(enabled: boolean): void {
     if (!this.project) return;
     this.projectService.toggleProjectVoting(this.project.id, enabled).subscribe();

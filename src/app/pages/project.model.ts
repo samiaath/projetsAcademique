@@ -11,16 +11,23 @@ export interface Task {
 }
 
 export interface Vote {
-  userId: string;       // User who voted
-  projectId: string;    // Global project ID
-  teamProjectId: string; // Team project being voted on
+  userId: number;      
+  projectId: number;    // Global project ID
+  teamProjectId: number; // Team project being voted on
   rating: number;       // 1-5 stars
   createdAt: Date;      // When vote was cast
 }
+export interface supervisor{
+    id: number;
+    name:string;
 
+
+
+}
 export interface Project {
-  id: string;
+  id:number;
   title: string;
+  supervisors: supervisor[] ;
   category: string;
   description: string;
   dueDate: string;
@@ -30,7 +37,7 @@ export interface Project {
 }
 
 export interface TeamProject extends Project {
-  teamProjectId: string;
+  teamProjectId: number;
   teamProjectName: string;
   members: string[];
   // These will be calculated
@@ -39,10 +46,15 @@ export interface TeamProject extends Project {
 }
 
 export interface Notification {
-  sender: string;
-  message: string;
-  date: string;
-  time: string;
-  
+  id?: number
+  sender: string
+  destination: string
+  message: string
+  date: string
+  time: string
+  type?: "task" | "message"
+  isRead?: boolean
+  action?: string // URL to navigate to when notification is clicked
+  supervisorId?: number // For message notifications, to identify which supervisor to chat with
+  teamProjectId?: number // For task notifications, to identify which team project to view
 }
-

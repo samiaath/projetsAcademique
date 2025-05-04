@@ -1,5 +1,5 @@
 import { Component, type OnInit } from "@angular/core"
-import  { ActivatedRoute,Router } from "@angular/router"
+import  { ActivatedRoute, Router } from "@angular/router"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import  { ProjectService } from "../../services/project.service"
@@ -22,14 +22,14 @@ interface CalendarDay {
   imports: [CommonModule, FormsModule, DeliverablesModalComponent],
   styleUrls: ["./project-details.component.scss"],
 })
-
 export class ProjectDetailsComponent implements OnInit {
   openVotingInterface() {
-    if (!this.projectDetails?.id) return;
-   
-    this.router.navigate(['/layout/project', this.projectDetails.id, 'vote']);
+    if (!this.projectDetails?.id) return
+
+    this.router.navigate(["/layout/project", this.projectDetails.id, "vote"])
   }
-  projectId!: string
+
+  projectId!: number
   projectDetails: Project = {} as Project
   projects: Project[] = []
   teamProjects: TeamProject[] = []
@@ -79,7 +79,8 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.projectId = this.route.snapshot.paramMap.get("id")!
+    const idParam = this.route.snapshot.paramMap.get("id")!
+    this.projectId = Number.parseInt(idParam, 10)
 
     this.projectService.getProjects().subscribe((data) => {
       this.projects = data
@@ -90,8 +91,8 @@ export class ProjectDetailsComponent implements OnInit {
     })
 
     this.projectService.getTeamProjectsByProjectId(this.projectId).subscribe((teamProjects) => {
-      this.teamProjects = teamProjects;
-      this.filteredTeamProjects = [...teamProjects];
+      this.teamProjects = teamProjects
+      this.filteredTeamProjects = [...teamProjects]
     })
   }
 

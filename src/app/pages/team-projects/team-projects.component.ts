@@ -26,15 +26,18 @@ export class TeamProjectComponent implements OnInit {
     this.projectService.getAllTeamProjects().subscribe((projects) => {
       this.teamProjects = projects;
   
-      const teamProjectId = this.route.snapshot.paramMap.get('id');
-      if (teamProjectId) {
+      const teamProjectIdParam = this.route.snapshot.paramMap.get('id');
+      if (teamProjectIdParam) {
+        const teamProjectId = parseInt(teamProjectIdParam, 10);
         this.teamProject = this.teamProjects.find(tp => tp.teamProjectId === teamProjectId);
       }
     });
   }
-  goToDetails(id: string) {
+  
+  goToDetails(id: number) {
     this.router.navigate(['/layout/teamProject', id]);
   }
+  
   getRandomBorderColor(): string {
     const colors = ['#6366F1', '#EC4899', '#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
     return colors[Math.floor(Math.random() * colors.length)];
@@ -43,5 +46,4 @@ export class TeamProjectComponent implements OnInit {
   getRandomPastelColor(): string {
     return `hsl(${Math.floor(Math.random() * 360)}, 100%, 95%)`;
   }
-  
 }

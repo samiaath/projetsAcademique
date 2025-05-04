@@ -3,13 +3,15 @@ import  { ActivatedRoute, Router } from "@angular/router"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import  { ProjectService } from "../../services/project.service"
-import type { TeamProject, Task } from "../project.model"
+import { NotificationService } from "../../services/notification.service"
+import type { TeamProject, Task, supervisor } from "../project.model"
 import { DeliverablesModalComponent } from "../delivrables-modal/delivrables-modal.component"
+import { ChatSectionComponent } from "../chat-section/chat-section.component"
 
 @Component({
   selector: "app-team-project-details",
   standalone: true,
-  imports: [CommonModule, FormsModule, DeliverablesModalComponent],
+  imports: [CommonModule, FormsModule, DeliverablesModalComponent, ChatSectionComponent],
   templateUrl: "./team-project-details.component.html",
   styleUrls: ["./team-project-details.component.scss"],
 })
@@ -39,12 +41,14 @@ export class TeamProjectDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     public router: Router,
     private projectService: ProjectService,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get("id")
-    console.log("Team Project ID:", id)
-    if (id) {
+    const idParam = this.route.snapshot.paramMap.get("id")
+    console.log("Team Project ID:", idParam)
+    if (idParam) {
+      const id = Number.parseInt(idParam, 10)
       this.projectService.getAllTeamProjects().subscribe((projects) => {
         this.teamProject = projects.find((tp) => tp.teamProjectId === id)
 
@@ -57,6 +61,13 @@ export class TeamProjectDetailsComponent implements OnInit {
         }
 
         console.log("Team project loaded:", this.teamProject)
+
+        // Check if we were directed here from a notification
+        const supervisorId = this.route.snapshot.queryParamMap.get("supervisorId")
+        if (supervisorId) {
+          // Handle any specific actions needed when coming from a notification
+          console.log("Accessed from notification with supervisor ID:", supervisorId)
+        }
       })
     }
   }
@@ -127,56 +138,55 @@ export class TeamProjectDetailsComponent implements OnInit {
     this.uploadedFiles = []
     this.isEditing = false
   }
-// Add these properties to your component class
-uploadedPdfFile: File | null = null;
-uploadedVideoFile: File | null = null;
-pdfUrl: string | null = null;
-videoUrl: string | null = null;
 
-// Update your onFileSelected method
-onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    const file = input.files[0];
-    
-    if (this.deliverableType === "pdf") {
-      this.uploadedPdfFile = file;
-      this.hasPdfFile = true;
-      this.pdfUrl = URL.createObjectURL(file);
-      console.log("PDF file uploaded:", file.name);
-    } else if (this.deliverableType === "video") {
-      this.uploadedVideoFile = file;
-      this.hasVideoFile = true;
-      this.videoUrl = URL.createObjectURL(file);
-      console.log("Video file uploaded:", file.name);
+  // Add these properties to your component class
+  uploadedPdfFile: File | null = null
+  uploadedVideoFile: File | null = null
+  pdfUrl: string | null = null
+  videoUrl: string | null = null
+
+  // Update your onFileSelected method
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0]
+
+      if (this.deliverableType === "pdf") {
+        this.uploadedPdfFile = file
+        this.hasPdfFile = true
+        this.pdfUrl = URL.createObjectURL(file)
+        console.log("PDF file uploaded:", file.name)
+      } else if (this.deliverableType === "video") {
+        this.uploadedVideoFile = file
+        this.hasVideoFile = true
+        this.videoUrl = URL.createObjectURL(file)
+        console.log("Video file uploaded:", file.name)
+      }
     }
   }
-}
 
-// Update removeDeliverable method
-removeDeliverable(type: "pdf" | "github" | "video"): void {
-  if (type === "pdf") {
-    this.hasPdfFile = false;
-    this.uploadedPdfFile = null;
-    if (this.pdfUrl) {
-      URL.revokeObjectURL(this.pdfUrl);
-      this.pdfUrl = null;
-    }
-  } else if (type === "github") {
-    this.hasGithubLink = false;
-    this.githubLink = "";
-  } else if (type === "video") {
-    this.hasVideoFile = false;
-    this.videoLink = "";
-    this.uploadedVideoFile = null;
-    if (this.videoUrl) {
-      URL.revokeObjectURL(this.videoUrl);
-      this.videoUrl = null;
+  // Update removeDeliverable method
+  removeDeliverable(type: "pdf" | "github" | "video"): void {
+    if (type === "pdf") {
+      this.hasPdfFile = false
+      this.uploadedPdfFile = null
+      if (this.pdfUrl) {
+        URL.revokeObjectURL(this.pdfUrl)
+        this.pdfUrl = null
+      }
+    } else if (type === "github") {
+      this.hasGithubLink = false
+      this.githubLink = ""
+    } else if (type === "video") {
+      this.hasVideoFile = false
+      this.videoLink = ""
+      this.uploadedVideoFile = null
+      if (this.videoUrl) {
+        URL.revokeObjectURL(this.videoUrl)
+        this.videoUrl = null
+      }
     }
   }
-}
-
-
 
   addGithubLink(): void {
     if (this.githubLink && this.githubLink.trim() !== "") {
@@ -191,8 +201,6 @@ removeDeliverable(type: "pdf" | "github" | "video"): void {
       console.log("Video link added:", this.videoLink)
     }
   }
-
-  
 
   // Check if the task deadline has passed
   isDeadlinePassed(dueDate: string): boolean {
@@ -219,40 +227,45 @@ removeDeliverable(type: "pdf" | "github" | "video"): void {
   // Submit or update a task
   submitTask(): void {
     if (!this.selectedTask || !this.teamProject || !this.teamProject.tasks) {
-      return;
+      return
     }
-  
-    const deliverables = [];
-  
+
+    const deliverables = []
+
     // Handle PDF
     if (this.hasPdfFile && this.uploadedPdfFile) {
-      deliverables.push(`PDF: ${this.uploadedPdfFile.name}`);
+      deliverables.push(`PDF: ${this.uploadedPdfFile.name}`)
     }
-  
+
     // Handle GitHub
     if (this.hasGithubLink && this.githubLink) {
-      deliverables.push(`GitHub: ${this.githubLink}`);
+      deliverables.push(`GitHub: ${this.githubLink}`)
     }
-  
+
     // Handle Video
     if (this.hasVideoFile) {
       if (this.videoLink) {
-        deliverables.push(`Video: ${this.videoLink}`);
+        deliverables.push(`Video: ${this.videoLink}`)
       } else if (this.uploadedVideoFile) {
-        deliverables.push(`Video: ${this.uploadedVideoFile.name}`);
+        deliverables.push(`Video: ${this.uploadedVideoFile.name}`)
       }
     }
-  
+
     // Update the task
-    const taskIndex = this.teamProject.tasks.findIndex((t) => t.id === this.selectedTask!.id);
+    const taskIndex = this.teamProject.tasks.findIndex((t) => t.id === this.selectedTask!.id)
     if (taskIndex !== -1) {
       this.teamProject.tasks[taskIndex] = {
         ...this.teamProject.tasks[taskIndex],
         isCompleted: true,
         deliverables: deliverables.join(" | "),
-      };
+      }
+
+      // Send notification to supervisors with action URL
+      if (this.teamProject.supervisors && this.teamProject.supervisors.length > 0) {
+        this.notificationService.sendTaskSubmissionNotification(this.teamProject, this.selectedTask.name)
+      }
     }
-    this.closeSubmissionModal();
+    this.closeSubmissionModal()
   }
 
   getFormattedStatus(status: string): string {
@@ -296,3 +309,4 @@ removeDeliverable(type: "pdf" | "github" | "video"): void {
     return this.hasPdfFile || this.hasGithubLink || this.hasVideoFile
   }
 }
+
