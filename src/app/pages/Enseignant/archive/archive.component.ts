@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TeamProject } from '../models/project2.model';
-import { ArchiveService } from '../services/archive.service';
+import { ArchiveService } from '../services-enseignant/archive.service';
 import { ActivatedRoute,Router, RouterModule, NavigationEnd } from '@angular/router';
 
 @Component({

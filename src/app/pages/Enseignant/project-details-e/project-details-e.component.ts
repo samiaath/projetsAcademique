@@ -3,8 +3,8 @@ import { Component, type OnInit, ViewChild, type ElementRef } from "@angular/cor
 import { CommonModule } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
 import { FormsModule } from "@angular/forms";
-import { GroupService } from "../services/group.service";
-import { ProjectDetailsService } from "../services/project-details.service";
+import { GroupService } from "../services-enseignant/group.service";
+import { ProjectDetailsService } from "../services-enseignant/project-details.service";
 import { TeamProject, Task, Submission, FileType } from "../models/project2.model";
 @Component({
   selector: "app-project-details-e",

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Project, Task, CalendarDay } from '../models/project2.model';
-import { HomeService } from "../services/home.service" 
+import { HomeService } from "../services-enseignant/home.service" 
 
 @Component({
   selector: 'app-home2',

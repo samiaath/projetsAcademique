@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Notification } from '../models/project2.model';
-import { NotificationService } from '../services/notifications.service';
+import { NotificationService } from '../services-enseignant/notifications.service';
 import { Router } from '@angular/router';
 
 @Component({
