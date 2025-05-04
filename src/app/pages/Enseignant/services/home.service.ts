@@ -1,6 +1,6 @@
 // project.service.ts
 import { Injectable } from '@angular/core';
-import { Project, Task, CalendarDay } from '../models/project.model';
+import { Project, Task, CalendarDay } from '../models/project2.model';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({

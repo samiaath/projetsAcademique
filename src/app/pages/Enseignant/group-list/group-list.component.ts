@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Group, TeamProject } from '../models/project.model';
+import { Group, TeamProject } from '../models/project2.model';
 import { GroupService } from '../services/group.service';
 import { ActivatedRoute, Router, RouterModule, NavigationEnd } from '@angular/router';
 import { Observable, map } from 'rxjs';

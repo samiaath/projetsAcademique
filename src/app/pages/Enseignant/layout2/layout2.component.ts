@@ -22,13 +22,13 @@ export class Layout2Component implements OnInit {
     ).subscribe((event: any) => {
       // Extraire le segment principal de la route (/layout2/notifications -> notifications)
       const urlSegments = event.url.split('/');
-      this.activeRoute = urlSegments[2] || 'home';
+      this.activeRoute = urlSegments[2] || 'home2';
       console.log('Active route:', this.activeRoute);
     });
 
     // Définir la route active initiale
     const urlSegments = this.router.url.split('/');
-    this.activeRoute = urlSegments[2] || 'home';
+    this.activeRoute = urlSegments[2] || 'home2';
   }
 
   // Vérifier si une route est active

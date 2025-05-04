@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TeamProject } from '../models/project.model';
+import { TeamProject } from '../models/project2.model';
 import { ArchiveService } from '../services/archive.service';
 import { ActivatedRoute,Router, RouterModule, NavigationEnd } from '@angular/router';
 
@@ -68,7 +68,7 @@ export class ArchiveComponent implements OnInit {
 
 
   viewProjectDetails(groupId: string, projectId: string): void {
-    this.router.navigate(["/layout2/project-details", groupId, projectId])
+    this.router.navigate(["/layout2/project-details-e", groupId, projectId])
   }
 
   filterProjects(): void {

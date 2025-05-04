@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Notification } from '../models/project.model';
+import { Notification } from '../models/project2.model';
 import { NotificationService } from '../services/notifications.service';
 import { Router } from '@angular/router';
 
@@ -78,7 +78,7 @@ export class Notifications2Component implements OnInit {
     this.notificationService.markAsRead(notification.id!);
      // Navigation basée sur le type de notification
     if (notification.type === 'task' && notification.teamProjectId) {
-      this.router.navigate(['/project-details/', notification.groupId, '/', notification.teamProjectId]);
+      this.router.navigate(['/project-details-e/', notification.groupId, '/', notification.teamProjectId]);
     } else if (notification.type === 'message' && notification.groupId) {
       this.router.navigate(['/chat', notification.groupId]);
     }

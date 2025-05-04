@@ -25,17 +25,12 @@ export class LoginComponent {
       const user = users.find((u: any) => u.email === this.email && u.password === this.password);
       console.log(user);
       
-      if (user) {
-        if (user.role === 'student') {
-          this.router.navigate(['/Etudiant/layout']);
-        } else if (user.role === 'professor') {
+     if (user.role === 'professor') {
           this.router.navigate(['/Enseignant/layout2']);
         }
       } else {
         alert('Incorrect email or password');
       }
-    } else {
-      alert('No registered users found');
     }
-  }
+  
 }

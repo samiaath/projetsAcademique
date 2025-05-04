@@ -1,8 +1,8 @@
 // project-details.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { TeamProject, Task, Submission, FileType } from "../models/project.model";
-import { ChatMessage, FileUtility } from '../models/project.model';
+import { TeamProject, Task, Submission, FileType } from "../models/project2.model";
+import { ChatMessage, FileUtility } from '../models/project2.model';
 
 @Injectable({
   providedIn: 'root'

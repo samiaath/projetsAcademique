@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { TeamProject } from '../models/project.model';
+import { TeamProject } from '../models/project2.model';
 
 @Injectable({
   providedIn: 'root'

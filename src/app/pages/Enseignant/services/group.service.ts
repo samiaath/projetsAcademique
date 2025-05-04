@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { Group, TeamProject } from '../models/project.model';
+import { Group, TeamProject } from '../models/project2.model';
 
 @Injectable({
   providedIn: 'root'

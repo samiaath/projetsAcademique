@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Notification } from '../models/project.model';
+import { Notification } from '../models/project2.model';
 
 @Injectable({
   providedIn: 'root'

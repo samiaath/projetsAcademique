@@ -5,9 +5,9 @@ import { ActivatedRoute } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { GroupService } from "../services/group.service";
 import { ProjectDetailsService } from "../services/project-details.service";
-import { TeamProject, Task, Submission, FileType } from "../models/project.model";
+import { TeamProject, Task, Submission, FileType } from "../models/project2.model";
 @Component({
-  selector: "app-project-details2",
+  selector: "app-project-details-e",
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: "./project-details-e.component.html",
