@@ -6,6 +6,13 @@ export default {
       fontFamily: {
         montecarlo: ['"MonteCarlo"', 'cursive'],
       },
+      colors: {
+        primary: '#4F46E5',
+        
+      },
+      fontSize: {
+        xxs: '0.625rem', 
+      }
     },
   },
   plugins: [],
