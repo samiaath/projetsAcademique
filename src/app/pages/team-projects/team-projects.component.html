@@ -1,1 +1,78 @@
-<p>team-projects works!</p>
+<div class="home-container px-8 py-10 bg-[#F9FAFB] min-h-screen">
+  <!-- Header with Icon -->
+  <div class="flex items-center gap-3 mb-8">
+    <!-- Title -->
+    <h1 class="text-3xl font-bold text-gray-800">Team Projects</h1>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Loop through the team projects -->
+    <div *ngFor="let project of teamProjects" 
+         class="bg-white rounded-lg shadow-lg p-6 border-l-4 cursor-pointer"
+         [style.border-left-color]="getRandomBorderColor()"
+         (click)="goToDetails(project.teamProjectId)">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <span class="text-xs font-medium" [style.color]="getRandomBorderColor()">
+            {{ project.description }}
+          </span>
+          <h3 class="text-lg font-medium text-gray-800 mt-2">{{ project.teamProjectName }}</h3>
+        </div>
+        <span class="text-xs px-2 py-1 rounded-full" 
+              [style.background-color]="getRandomPastelColor()"
+              [style.color]="getRandomBorderColor()">
+          {{ project.category }}
+        </span>
+      </div>
+      
+      <!-- Supervisors section -->
+      <div class="mt-3 mb-3">
+        <div class="flex flex-wrap gap-1">
+          <span *ngFor="let supervisor of project.supervisors" 
+                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {{ supervisor.name }}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Team Members -->
+      <div class="flex mt-4 mb-2">
+        <div class="flex -space-x-2 overflow-hidden">
+          <ng-container *ngFor="let member of project.members.slice(0, 4); let i = index">
+            <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+              {{ member.charAt(0).toUpperCase() }}
+            </div>
+          </ng-container>
+          <div *ngIf="project.members.length > 4" class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-300 flex items-center justify-center text-xs font-medium text-gray-700">
+            +{{ project.members.length - 4 }}
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-between items-center mt-6">
+        <span class="text-sm font-medium" [ngClass]="{'text-red-500': project.status.includes('Left'),
+                                                      'text-yellow-500': project.status.includes('Week'),
+                                                      'text-green-500': project.status.includes('Start')}">
+          {{ project.status }}
+        </span>
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span class="text-xs text-gray-500">{{ project.dueDate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state if no team projects -->
+  <div *ngIf="teamProjects.length === 0" class="text-center py-16">
+    <div class="text-gray-400 mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+    </div>
+    <h3 class="text-lg font-medium text-gray-800">No team projects yet</h3>
+    <p class="text-gray-500 mt-2">Create a team project from any global project</p>
+  </div>
+</div>

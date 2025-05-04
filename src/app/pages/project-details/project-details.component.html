@@ -1,1 +1,258 @@
-<p>project-details works!</p>
+<div class="project-detail-container flex flex-wrap items-stretch min-h-screen bg-[#F4F7FB]">
+
+  <!-- Left Section: Search -->
+  <div class="w-full md:w-1/4 px-6 py-8 bg-white rounded-l-lg border-r border-gray-200">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">All Projects</h1>
+    </div>
+
+    <!-- Search Section -->
+    <div class="bg-[#EEECEC] min-h-[400px] flex-1 p-4 rounded-lg shadow-inner">
+      <div class="relative mb-4">
+        <input type="text" placeholder="Search Projects..."
+               class="w-full px-4 py-2 pl-10 border rounded-lg text-gray-800 bg-[#FFF] focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+               style="border: 1px solid #ddd;"
+               [(ngModel)]="searchQuery"
+               (input)="filterTeamProjects()" />
+        <i class="fa fa-search absolute left-3 top-2.5 text-gray-500"></i>
+      </div>
+
+      <!-- Team Projects List -->
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let team of filteredTeamProjects" 
+             class="bg-white p-3 rounded shadow-sm hover:shadow-md transition cursor-pointer"
+             (click)="openDeliverablesModal(team)">
+          <span class="font-semibold text-blue-700">{{ team.teamProjectName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add New Project Section -->
+    <div class="bg-[#EEECEC] p-4 mt-10 rounded-xl shadow-sm">
+      <h2 class="text-sm font-semibold text-gray-600 mb-3">Add New Team Project</h2>
+      <button (click)="openCreateProjectModal()" class="w-full bg-[#D9D9D9] hover:bg-[#C4C4C4] text-gray-800 text-sm py-2 rounded-xl transition duration-300 shadow-sm">
+        + Create Team Project
+      </button>
+    </div>
+  </div>
+
+  <!-- Middle Section: Details and Tasks -->
+  <div class="w-full md:w-2/4 px-6 py-8 flex flex-col gap-6 bg-white">
+    <!-- Project Info Section -->
+    <div class="bg-[#EEECEC] p-6 rounded-lg shadow-xl mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ projectDetails.title }}</h2>
+      <p class="text-sm text-gray-600 mb-3">{{ projectDetails.category }}</p>
+
+      <!-- Supervisors section -->
+      <div class="my-4">
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">Supervisors</h3>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let supervisor of projectDetails.supervisors" 
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+            {{ supervisor.name }}
+          </span>
+        </div>
+      </div>
+
+      <div class="my-4">
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">Project Description</h3>
+        <p class="text-sm text-gray-800">
+          {{ projectDetails.description }}
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">Number of Students per Group</h3>
+        <p class="text-sm text-gray-800">
+          This design project should have 2 or 3 team members
+        </p>
+      </div>
+    </div>
+
+    <!-- Tasks Section -->
+    <div class="bg-[#EEECEC] rounded-lg shadow-xl p-6 mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Tasks</h2>
+
+      <ul class="space-y-3" *ngIf="tasks.length > 0; else noTasks">
+        <li *ngFor="let task of tasks"
+            class="flex justify-between items-center hover:bg-[#E1E1E1] p-3 rounded-lg transition duration-300 cursor-pointer"
+            (click)="openTaskDetailsModal(task.id)">
+          <span class="text-sm font-medium text-gray-800">{{ task.id }}. {{ task.name }}</span>
+          <span class="text-sm"
+                [ngClass]="{
+                  'text-red-500': task.status === 'In Progress',
+                  'text-yellow-500': task.status === 'Not Started',
+                  'text-green-500': task.status === 'Done'
+                }">
+            Deadline: {{ task.dueDate }}
+          </span>
+        </li>
+      </ul>
+
+      <ng-template #noTasks>
+        <p class="text-sm text-gray-500">No tasks available for this project.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Right Section: Calendar -->
+  <div class="w-full md:w-1/4 px-6 py-8 bg-white rounded-r-lg">
+    <div class="bg-[#EEECEC] p-6 rounded-lg shadow-xl">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">Calendar</h2>
+        <div class="flex items-center space-x-2">
+          <button (click)="prevMonth()" class="p-1 rounded hover:bg-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <span class="text-sm font-medium">{{ getMonthYearString() }}</span>
+          <button (click)="nextMonth()" class="p-1 rounded hover:bg-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-center border-collapse">
+          <thead>
+            <tr class="text-xs text-gray-500">
+              <th *ngFor="let day of weekDays" class="p-2">{{ day }}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs text-gray-800">
+            <tr *ngFor="let week of getWeeks()">
+              <td *ngFor="let day of week" class="p-2 relative"
+                  [class.text-gray-400]="!day.isCurrentMonth"
+                  [class.font-semibold]="day.isToday"
+                  [class.text-red-500]="day.isDueDate"
+                  [class.bg-red-100]="day.isDueDate" 
+                  [class.border-2]="day.isDueDate"
+                  [class.border-red-500]="day.isDueDate"> 
+                
+                {{ day.dayNumber }}
+                <span *ngIf="day.isToday" class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4">
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">Deadline</h2>
+        <p class="text-sm text-gray-800">{{ projectDetails.dueDate }}</p>
+      </div>
+    </div>
+    <div class="bg-[#EEECEC] p-6 rounded-lg shadow-xl mt-6 cursor-pointer hover:shadow-md transition"
+     (click)="openVotingInterface()">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400 mr-3" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+      </svg>
+      <h2 class="text-xl font-semibold text-gray-800">Vote for Teams</h2>
+    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+    </svg>
+  </div>
+  <p class="text-sm text-gray-600 mt-2">Click to rate team projects</p>
+</div>
+    
+  </div>
+
+  <!-- Task Details Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showTaskDetailsModal">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">{{ selectedTask?.name }}</h2>
+        <button (click)="closeTaskDetailsModal()" class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Task Description -->
+      <div class="mb-4">
+        <p class="text-sm text-gray-600 mb-3">
+          {{ selectedTask?.description || 'No description available' }}
+        </p>
+      </div>
+
+      <!-- Deliverables -->
+      <div class="mb-4">
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">Deliverables</h3>
+        <p class="text-sm text-gray-800">
+          {{ selectedTask?.deliverables || 'Written Report (PDF or Word Document)' }}
+        </p>
+      </div>
+
+      <!-- Deadline Info -->
+      <div class="grid grid-cols-2 gap-4 mt-6">
+        <div class="bg-[#F0F4FF] p-3 rounded-lg">
+          <p class="text-xs text-gray-500">Time Remaining</p>
+          <p class="text-sm font-medium text-[#7784EE]">{{ selectedTask?.status || '2 Days Left' }}</p>
+        </div>
+        <div class="bg-[#F0F4FF] p-3 rounded-lg">
+          <p class="text-xs text-gray-500">Due Date</p>
+          <p class="text-sm font-medium text-[#7784EE]">{{ selectedTask?.dueDate || '12/05/2025' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add New Project Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showCreateProjectModal" (click)="closeCreateProjectModal()">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">Create New Team Project</h2>
+        <button (click)="closeCreateProjectModal()" class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Project Name -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+        <input type="text" [(ngModel)]="teamProjectName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      </div>
+
+      <!-- Add Members -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Add Members</label>
+        <div class="flex items-center mb-2">
+          <input type="text" [(ngModel)]="memberInput" placeholder="Enter email address"
+                 class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <button (click)="addMember()" class="bg-[#7784EE] text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 transition">
+            Add
+          </button>
+        </div>
+
+        <ul *ngIf="members.length" class="list-disc pl-6 text-sm text-gray-700">
+          <li *ngFor="let member of members">{{ member }}</li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-center space-x-3">
+        <button (click)="createTeamProject()" class="px-4 py-2 bg-[#7784EE] text-white rounded-lg hover:bg-blue-700 transition">
+          Create Project
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deliverables Modal -->
+  <app-deliverables-modal 
+    *ngIf="showDeliverablesModal && selectedTeamProject"
+    [teamProject]="selectedTeamProject"
+    (closeModal)="closeDeliverablesModal()">
+  </app-deliverables-modal>
+</div>

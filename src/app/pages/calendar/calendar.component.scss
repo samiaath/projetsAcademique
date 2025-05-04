@@ -1,0 +1,28 @@
+/* Add custom text size for very small text */
+.text-xxs {
+    font-size: 0.65rem;
+    line-height: 1rem;
+  }
+  
+  /* Make sure the calendar container has proper scrolling */
+  .calendar-container {
+    overflow-x: auto;
+  }
+  
+  /* Ensure the table cells have a minimum height */
+  td {
+    min-height: 80px;
+    vertical-align: top;
+  }
+  
+  /* Add hover effect to task cards */
+  div[class*="border-l-4"] {
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+  }
+  
+  div[class*="border-l-4"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  

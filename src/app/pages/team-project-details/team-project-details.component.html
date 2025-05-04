@@ -1,1 +1,366 @@
-<p>team-project-details works!</p>
+<div class="project-container px-8 py-10 bg-[#F9FAFB] min-h-screen">
+  <!-- Project Header -->
+  <div *ngIf="teamProject" class="bg-white rounded-lg shadow-sm p-6 mb-8">
+    <div class="flex justify-between items-start">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl font-bold text-gray-800">{{ teamProject.teamProjectName }}</h1>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="text-sm text-gray-500 mt-1">Last Update - {{ getCurrentDate() }}</div>
+        <div class="text-sm text-gray-500 mt-1">Deadline - {{ teamProject.dueDate }}</div>
+        
+        <!-- Supervisors section -->
+        <div class="mt-3">
+          <h3 class="text-sm font-medium text-gray-600 mb-1">Supervisors:</h3>
+          <div class="flex flex-wrap gap-1">
+            <span *ngFor="let supervisor of teamProject.supervisors" 
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {{ supervisor.name }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Members -->
+      <div class="flex -space-x-2 overflow-hidden">
+        <ng-container *ngFor="let member of teamProject.members.slice(0, 4); let i = index">
+          <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+            {{ member.charAt(0).toUpperCase() }}
+          </div>
+        </ng-container>
+        <div *ngIf="teamProject.members.length > 4" class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-300 flex items-center justify-center text-xs font-medium text-gray-700">
+          +{{ teamProject.members.length - 4 }}
+        </div>
+        <button class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600 ml-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- View Deliverables Button -->
+    <div class="mt-4 flex justify-end" *ngIf="hasDeliverables()">
+      <button 
+        (click)="openDeliverablesModal()" 
+        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition flex items-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        View Deliverables
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column: Tasks Grid -->
+    <div class="lg:col-span-2">
+      <div *ngIf="teamProject && teamProject.tasks && teamProject.tasks.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div *ngFor="let task of teamProject.tasks; let i = index" class="bg-white rounded-lg shadow-sm p-6 relative cursor-pointer" (click)="openTaskSubmissionModal(task)">
+          <div class="absolute top-4 right-4 flex space-x-2">
+            <button class="text-gray-400 hover:text-gray-600" (click)="$event.stopPropagation()">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Task Completion Status -->
+          <div class="absolute top-4 left-4">
+            <div *ngIf="task.isCompleted" class="text-green-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div *ngIf="!task.isCompleted" class="text-gray-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          
+          <div class="mb-4 ml-8">
+            <h3 class="text-lg font-semibold text-gray-800">Task {{ (i + 1).toString().padStart(2, '0') }}</h3>
+          </div>
+          
+          <div class="mb-4">
+            <h4 class="text-md font-medium text-gray-800">{{ task.name }}</h4>
+            <p class="text-sm text-gray-500 mt-1">{{ task.description }}</p>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-sm font-medium text-gray-700">{{ task.deliverables }}</p>
+          </div>
+          
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <span class="px-3 py-1 text-xs font-medium rounded-full" 
+                    [ngClass]="{
+                      'bg-red-100 text-red-800': task.status.includes('Left'),
+                      'bg-purple-100 text-purple-800': task.status.includes('Week'),
+                      'bg-green-100 text-green-800': task.status.includes('Start'),
+                      'bg-gray-100 text-gray-800': task.status === 'Not Started'
+                    }">
+                {{ task.status }}
+              </span>
+            </div>
+            
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="text-xs text-gray-500">{{ task.dueDate }}</span>
+            </div>
+          </div>
+          
+          <button 
+            class="w-full py-2 rounded-md text-sm font-medium transition duration-200"
+            [ngClass]="{
+              'bg-green-500 hover:bg-green-600 text-white': !task.isCompleted && !isDeadlinePassed(task.dueDate), 
+              'bg-green-100 text-green-800': task.isCompleted,
+              'bg-gray-300 text-gray-600 cursor-not-allowed': !task.isCompleted && isDeadlinePassed(task.dueDate)
+            }"
+            [disabled]="!task.isCompleted && isDeadlinePassed(task.dueDate)"
+            (click)="$event.stopPropagation(); openTaskSubmissionModal(task)">
+            <ng-container *ngIf="!task.isCompleted">
+              <span *ngIf="!isDeadlinePassed(task.dueDate)">Submit</span>
+              <span *ngIf="isDeadlinePassed(task.dueDate)">Deadline Passed</span>
+            </ng-container>
+            <ng-container *ngIf="task.isCompleted">
+              <span *ngIf="!isDeadlinePassed(task.dueDate)">Edit Submission</span>
+              <span *ngIf="isDeadlinePassed(task.dueDate)">Submitted</span>
+            </ng-container>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty state if no tasks -->
+      <div *ngIf="!teamProject || !teamProject.tasks || teamProject.tasks.length === 0" class="text-center py-16 bg-white rounded-lg shadow-sm">
+        <div class="text-gray-400 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-800">No tasks available</h3>
+        <p class="text-gray-500 mt-2">This team project doesn't have any tasks yet</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Chat Section -->
+    <div class="lg:col-span-1 h-[600px]">
+      <app-chat-section *ngIf="teamProject" [teamProject]="teamProject"></app-chat-section>
+    </div>
+  </div>
+
+  <!-- Task Submission Modal -->
+  <div *ngIf="showSubmissionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="p-4 border-b flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-800">
+          {{ isEditing ? 'Edit Submission' : 'Submit Task' }} - Task {{ selectedTask && selectedTask.id ? selectedTask.id.toString().padStart(2, '0') : '00' }}
+        </h3>
+        
+        <!-- Deadline indicator -->
+        <div *ngIf="selectedTask" class="flex items-center">
+          <span class="text-xs px-2 py-1 rounded-full" 
+                [ngClass]="{
+                  'bg-red-100 text-red-800': isDeadlinePassed(selectedTask.dueDate),
+                  'bg-green-100 text-green-800': !isDeadlinePassed(selectedTask.dueDate)
+                }">
+            {{ isDeadlinePassed(selectedTask.dueDate) ? 'Deadline Passed' : 'Before Deadline' }}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="p-4">
+        <!-- Warning if deadline passed and not editing -->
+        <div *ngIf="selectedTask && isDeadlinePassed(selectedTask.dueDate) && !isEditing" class="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
+          <div class="flex items-start">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <p class="font-medium">Deadline has passed</p>
+              <p class="text-sm">You cannot submit new work after the deadline.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h4 class="text-md font-medium mb-3">Deliverable Type</h4>
+        
+        <!-- Deliverable Type Selection -->
+        <div class="flex space-x-2 mb-4">
+          <button 
+            [ngClass]="{'bg-blue-600 text-white': deliverableType === 'pdf', 'bg-gray-200 text-gray-700': deliverableType !== 'pdf'}"
+            class="px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            (click)="deliverableType = 'pdf'">
+            PDF Report
+          </button>
+          <button 
+            [ngClass]="{'bg-blue-600 text-white': deliverableType === 'github', 'bg-gray-200 text-gray-700': deliverableType !== 'github'}"
+            class="px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            (click)="deliverableType = 'github'">
+            GitHub Link
+          </button>
+          <button 
+            [ngClass]="{'bg-blue-600 text-white': deliverableType === 'video', 'bg-gray-200 text-gray-700': deliverableType !== 'video'}"
+            class="px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            (click)="deliverableType = 'video'">
+            Video
+          </button>
+        </div>
+        
+        <!-- PDF Upload -->
+        <div *ngIf="deliverableType === 'pdf'" class="mt-4">
+          <label for="pdf-upload" class="flex items-center justify-center w-full p-3 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span class="text-sm text-gray-500">Upload PDF Report</span>
+          </label>
+          <input id="pdf-upload" type="file" accept=".pdf" class="hidden" (change)="onFileSelected($event)">
+        </div>
+        
+        <!-- GitHub Link -->
+        <div *ngIf="deliverableType === 'github'" class="mt-4">
+          <div class="flex items-center">
+            <input 
+              type="text" 
+              [(ngModel)]="githubLink" 
+              placeholder="Enter GitHub repository URL" 
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button 
+              (click)="addGithubLink()" 
+              class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors">
+              Add
+            </button>
+          </div>
+        </div>
+        
+        <!-- Video Upload/Link -->
+        <div *ngIf="deliverableType === 'video'" class="mt-4">
+          <div class="flex flex-col space-y-3">
+            <div>
+              <label for="video-upload" class="flex items-center justify-center w-full p-3 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span class="text-sm text-gray-500">Upload Video File</span>
+              </label>
+              <input id="video-upload" type="file" accept="video/*" class="hidden" (change)="onFileSelected($event)">
+            </div>
+            
+            <div class="text-center text-sm text-gray-500">OR</div>
+            
+            <div class="flex items-center">
+              <input 
+                type="text" 
+                [(ngModel)]="videoLink" 
+                placeholder="Enter video URL (YouTube, Vimeo, etc.)" 
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button 
+                (click)="addVideoLink()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors">
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Added Deliverables -->
+        <div *ngIf="hasAnyDeliverable()" class="mt-6">
+          <h5 class="text-sm font-medium text-gray-700 mb-2">Added Deliverables:</h5>
+          
+          <div class="space-y-2">
+            <!-- PDF File -->
+            <div *ngIf="hasPdfFile" class="flex items-center justify-between bg-red-50 text-red-700 px-3 py-2 rounded-md">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <span class="text-sm truncate max-w-[200px]">
+                  {{ uploadedFiles[0]?.name || 'PDF Report' }}
+                </span>
+              </div>
+              <button (click)="removeDeliverable('pdf')" class="text-red-700 hover:text-red-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <!-- GitHub Link -->
+            <div *ngIf="hasGithubLink" class="flex items-center justify-between bg-purple-50 text-purple-700 px-3 py-2 rounded-md">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <span class="text-sm truncate max-w-[200px]">{{ githubLink }}</span>
+              </div>
+              <button (click)="removeDeliverable('github')" class="text-purple-700 hover:text-purple-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Video File/Link -->
+            <div *ngIf="hasVideoFile" class="flex items-center justify-between bg-blue-50 text-blue-700 px-3 py-2 rounded-md">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span class="text-sm truncate max-w-[200px]">
+                  {{ videoLink || uploadedFiles[0]?.name || 'Video Attachment' }}
+                </span>
+              </div>
+              <button (click)="removeDeliverable('video')" class="text-blue-700 hover:text-blue-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="p-4 border-t flex justify-end space-x-3">
+        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200" (click)="closeSubmissionModal()">
+          Cancel
+        </button>
+        
+        <!-- Delete button (only shown for editing before deadline) -->
+        <button 
+          *ngIf="isEditing && selectedTask && !isDeadlinePassed(selectedTask.dueDate)"
+          class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
+          (click)="deleteSubmission()">
+          Delete Submission
+        </button>
+        
+        <button 
+          class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600"
+          [disabled]="!hasAnyDeliverable() || (selectedTask && !isEditing && isDeadlinePassed(selectedTask.dueDate))"
+          [ngClass]="{'opacity-50 cursor-not-allowed': !hasAnyDeliverable() || (selectedTask && !isEditing && isDeadlinePassed(selectedTask.dueDate))}"
+          (click)="submitTask()">
+          {{ isEditing ? 'Update' : 'Submit' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Deliverables Modal -->
+  <app-deliverables-modal 
+    *ngIf="showDeliverablesModal && teamProject"
+    [teamProject]="teamProject"
+    (closeModal)="closeDeliverablesModal()">
+  </app-deliverables-modal>
+</div>

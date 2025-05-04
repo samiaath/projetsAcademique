@@ -1,1 +1,79 @@
-<p>vote works!</p>
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Rate Team Projects</h1>
+    <div *ngIf="project" class="flex items-center gap-4">
+      
+    </div>
+  </div>
+
+  <!-- Supervisors section -->
+  <div *ngIf="project && project.supervisors && project.supervisors.length > 0" class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <h3 class="text-md font-semibold text-gray-700 mb-2">Project Supervisors:</h3>
+    <div class="flex flex-wrap gap-2">
+      <span *ngFor="let supervisor of project.supervisors" 
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+        {{ supervisor.name }}
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="winningTeam && project?.votingEnabled" 
+       class="bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 p-4 mb-6 rounded-r">
+    <div class="flex items-center">
+      <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold mr-3">WINNER</span>
+      <div>
+        <h3 class="font-bold text-lg">{{winningTeam.teamProjectName}}</h3>
+        <p class="text-sm text-gray-600">
+          Average rating: {{winningTeam.averageRating | number:'1.1-1'}} 
+          (from {{winningTeam.voteCount}} votes)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngFor="let team of teamProjects" 
+       class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4"
+       [class.border-blue-400]="userRatings[team.teamProjectId]"
+       [class.border-gray-200]="!userRatings[team.teamProjectId]">
+    
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h2 class="text-xl font-semibold">{{team.teamProjectName}}</h2>
+        <p class="text-sm text-gray-500">{{team.members.length}} team members</p>
+      </div>
+      
+      <div *ngIf="team.averageRating" class="text-right">
+        <div class="text-lg font-bold">{{team.averageRating | number:'1.1-1'}}</div>
+        <div class="text-xs text-gray-500">{{team.voteCount}} votes</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="star-rating cursor-pointer" [class.opacity-50]="!project?.votingEnabled">
+        <span *ngFor="let star of [1,2,3,4,5]" 
+              (click)="project?.votingEnabled && rateTeam(team.teamProjectId, star)"
+              [class.text-yellow-400]="star <= (userRatings[team.teamProjectId] || 0)"
+              [class.text-gray-300]="star > (userRatings[team.teamProjectId] || 0)"
+              [class.cursor-not-allowed]="!project?.votingEnabled"
+              class="text-2xl">
+          ★
+        </span>
+      </div>
+      
+      <span class="text-sm" [class.text-gray-400]="!project?.votingEnabled">
+        {{userRatings[team.teamProjectId] ? 'Your rating: ' + userRatings[team.teamProjectId] : 
+          project?.votingEnabled ? 'Click to rate' : 'Voting closed'}}
+      </span>
+    </div>
+
+    <div class="mt-4 pt-4 border-t border-gray-100">
+      <h4 class="text-sm font-medium text-gray-500 mb-2">Team Members:</h4>
+      <div class="flex flex-wrap gap-2">
+        <span *ngFor="let member of team.members" 
+              class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+          {{member}}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,6 +6,7 @@ import { FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { routes } from './app/app.routes';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule } from '@angular/router';
 
 bootstrapApplication(AppComponent, {
   providers: [

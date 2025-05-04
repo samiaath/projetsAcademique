@@ -1,1 +1,69 @@
-<p>calendar works!</p>
+<div class="calendar-container px-8 py-10 bg-[#F9FAFB] min-h-screen">
+  <!-- Header with Icon -->
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Calendar</h1>
+    <div class="flex items-center gap-4">
+      <button (click)="today()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        Today
+      </button>
+      <div class="flex items-center bg-white rounded-lg border border-gray-300">
+        <button (click)="prevMonth()" class="p-2 hover:bg-gray-100 transition rounded-l-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <span class="px-4 text-md font-semibold text-gray-700 min-w-[180px] text-center">{{ getMonthYearString() }}</span>
+        <button (click)="nextMonth()" class="p-2 hover:bg-gray-100 transition rounded-r-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Wrapper -->
+  <div class="calendar-wrapper p-6 bg-white rounded-3xl shadow-xl max-w-7xl mx-auto">
+    <!-- Calendar Grid -->
+    <div class="overflow-x-auto horizontal-scroll">
+      <table class="w-full border-collapse">
+        <!-- Days Header -->
+        <thead>
+          <tr class="border-b">
+            <th class="w-32 py-3 text-xs font-medium text-gray-500 text-left pl-2 sticky left-0 bg-white z-10">Time</th>
+            <th *ngFor="let day of visibleDays" class="min-w-[120px] py-3 text-xs font-medium text-gray-500">
+              <div class="flex flex-col items-center">
+                <span class="text-xs">{{ weekDays[(day.date.getDay() + 6) % 7] }}</span>
+                <span class="text-sm font-medium mt-1 flex items-center justify-center w-6 h-6 rounded-full"
+                      [class.text-gray-800]="day.isCurrentMonth" 
+                      [class.text-gray-400]="!day.isCurrentMonth"
+                      [class.bg-blue-500]="isToday(day.date)"
+                      [class.text-white]="isToday(day.date)">
+                  {{ day.date.getDate() }}
+                </span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        
+        <!-- Time Slots -->
+        <tbody>
+          <tr *ngFor="let timeSlot of timeSlots" class="border-b border-gray-100">
+            <td class="py-4 text-xs font-medium text-gray-500 pl-2 sticky left-0 bg-white z-10">{{ timeSlot.label }}</td>
+            
+            <!-- Loop through each day -->
+            <td *ngFor="let day of visibleDays" class="py-4 px-2 min-h-[80px] border-r border-gray-100 last:border-r-0">
+              <div *ngFor="let task of getTasksForDayAndTimeSlot(day, timeSlot)" 
+                   class="rounded-lg p-3 border-l-4 mb-2"
+                   [style.border-left-color]="getRandomColor()"
+                   [style.background-color]="getRandomPastelColor()">
+                <p class="text-xs font-medium text-gray-800">{{ task.name }}</p>
+                <p class="text-xxs text-gray-500">{{ task.projectTitle }}</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

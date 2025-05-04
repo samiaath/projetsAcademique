@@ -27,10 +27,12 @@ export class LoginComponent {
       
      if (user.role === 'professor') {
           this.router.navigate(['/Enseignant/layout2']);
-        }
-      } else {
+        
+      } else if (user.role === 'student') {
+        this.router.navigate(['/layout']);
+      }else{
         alert('Incorrect email or password');
       }
     }
   
-}
+  }}
