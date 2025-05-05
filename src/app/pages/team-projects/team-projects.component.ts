@@ -21,10 +21,17 @@ export class TeamProjectComponent implements OnInit {
     private router: Router,
     private projectService: ProjectService
   ) {}
-
   ngOnInit(): void {
     this.projectService.getAllTeamProjects().subscribe((projects) => {
-      this.teamProjects = projects;
+      // Filter null supervisors and generate colors
+      this.teamProjects = projects.map(project => ({
+        ...project,
+        supervisors: project.supervisors?.filter(s => s != null) || [],
+        borderColor: this.getRandomBorderColor(),
+        pastelColor: this.getRandomPastelColor()
+      }));
+  
+      console.log(this.teamProjects);
   
       const teamProjectIdParam = this.route.snapshot.paramMap.get('id');
       if (teamProjectIdParam) {
@@ -33,6 +40,7 @@ export class TeamProjectComponent implements OnInit {
       }
     });
   }
+  
   
   goToDetails(id: number) {
     this.router.navigate(['/layout/teamProject', id]);

@@ -58,12 +58,14 @@ export class CalendarComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProjects()
+    
     this.generateCalendar()
   }
 
   loadProjects(): void {
     this.projectService.getProjects().subscribe((projects) => {
       this.projects = projects
+      console.log(this.projects)
       this.extractAllTasks()
       this.mapTasksToCalendar()
     })

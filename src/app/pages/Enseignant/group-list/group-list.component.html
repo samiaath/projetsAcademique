@@ -1,0 +1,78 @@
+<div class="p-6">
+  <h1 class="text-2xl font-semibold mb-4">Groups</h1>
+  <div class="flex flex-row h-[calc(100vh-120px)]">
+    <!-- Sidebar -->
+    <div class="w-64 bg-gray-100 rounded-xl p-4 mr-6 flex flex-col justify-between">
+      <div>
+        <!-- Barre de recherche -->
+        <div class="mb-4 relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <img src="assets/icons/search.svg" alt="Search" class="w-4 h-4 text-gray-400">
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            placeholder="Search groups"
+            class="pl-10 w-full p-2 bg-white rounded-full text-sm focus:outline-none"
+          >
+        </div>
+        <!-- Liste des groupes -->
+        <div class="space-y-2">
+          <div *ngFor="let group of filteredGroups"
+               (click)="selectGroup(group)"
+               class="p-2 px-4 rounded-full cursor-pointer flex justify-between items-center transition"
+               [ngClass]="{ 'bg-white text-black': selectedGroup?.id === group.id, 'text-gray-600 hover:bg-white': selectedGroup?.id !== group.id }">
+            <span class="text-sm font-medium">{{ group.title }}</span>
+            <img src="assets/icons/arrow.svg" class="w-3 h-3">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Zone des projets - Solution pour largeur fixe avec wrap -->
+    <div class="flex-1 overflow-y-auto pr-4 pl-4">
+      <div class="flex flex-wrap" style="gap: 2.5rem;">
+        <div *ngFor="let project of projectsWithColors" 
+             class="bg-white rounded-xl p-4 pr-3 shadow-lg flex flex-col justify-between" 
+             style="width: 490px; flex-grow: 0; flex-shrink: 0;">
+          <div>
+            <h2 class="text-sm font-semibold mb-2 mt-2">{{ project.title }}</h2>
+            <p class="text-xs text-gray-500 mb-8">{{ project.description }}</p>
+            <div class="flex justify-between items-center mb-4 mt-2">
+                <span class="inline-block bg-[#F0FAFF] text-[#33BFFF] text-xs font-medium px-2 py-1 rounded-full w-fit">
+                  {{ project.category }}
+                </span>
+                <!-- Membres -->
+                <div class="flex items-center -space-x-2">
+                  <div *ngFor="let member of project.members" class="avatar-initial w-6 h-6 rounded-full bg-gray-300" [style.background-color]="getRandomColorName(member)">
+                    {{ member.charAt(0) }}
+                  </div>
+                </div>
+            </div>
+          </div>
+          <!-- Footer avec ligne avant le bouton et date -->
+          <div class="flex justify-between items-center border-t pt-4">
+            <!-- Date à gauche -->
+            <div class="flex items-center text-gray-500 text-xs">
+              <img src="assets/icons/calendar.svg" alt="Calendar" class="w-4 h-4 mr-1">
+              <span>{{ project.date }}</span>
+            </div>
+            <!-- Bouton à droite -->
+            <button
+              *ngIf="selectedGroup"
+              class="text-white text-xs px-4 py-1 rounded-full"
+              [ngStyle]="{
+                'background-color': project.buttonColor,
+                'transition': 'background-color 0.3s ease'
+              }"
+              [ngClass]="{
+                'hover:bg-[#1FA89E]-50': project.buttonColor === '#148B84',
+                'hover:bg-[#C74A99]-50': project.buttonColor === '#AC2C80'
+              }"
+              (click)="viewProjectDetails(selectedGroup.id, project.id)">View details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

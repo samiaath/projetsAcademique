@@ -1,0 +1,40 @@
+<div class="flex min-h-screen bg-[#F9FAFB]">
+    
+    <aside class="w-20 bg-white shadow-lg flex flex-col items-center py-4">
+        <img src="assets/logo.svg" alt="Logo" class="w-40 mb-6" />
+      
+        <!-- Top icons -->
+        <div class="flex-1 flex flex-col items-center space-y-7">
+          <a routerLink="/layout2/home2" routerLinkActive="active-link"><img [src]="isActive('/layout2/home2') ? 'assets/icons/home-active.svg' : 'assets/icons/home.svg'" alt="Home" class="w-6 mt-4" /></a>
+          <a routerLink="/layout2/group-list" routerLinkActive="active-link"><img [src]="isActive('/layout2/group-list') ? 'assets/icons/projects-active.svg' : 'assets/icons/projects.svg'" alt="Projects" class="w-6 mt-3" /></a>
+          <a routerLink="/layout2/notifications" routerLinkActive="active-link"><img [src]="isActive('/layout2/notifications') ? 'assets/icons/bell-active.svg' : 'assets/icons/bell.svg'" alt="Notifications" class="w-6 mt-3" /></a>
+          <a routerLink="/layout2/archive" routerLinkActive="active-link"><img [src]="isActive('/layout2/archive') ? 'assets/icons/archive-active.svg' : 'assets/icons/archive.svg'" alt="Archive" class="w-6 mt-3"/></a>
+        </div>
+      
+        
+        <button (click)="logout()" class="mb-20">
+          <img src="assets/icons/logout.svg" alt="Logout" class="w-8" />
+        </button>
+      </aside>
+      
+  
+    
+    <div class="flex-1 flex flex-col">
+      
+        <header class="flex justify-end items-center px-6 py-4 bg-white">
+            <div class="flex items-center space-x-5 ml-auto mr-7">
+              <img src="assets/icons/user.svg" alt="User" class="w-8" />
+              <div class="text-right">
+                <p class="font-semibold text-sm">User Name</p>
+                <p class="text-xs text-gray-500">useremail</p>
+              </div>
+            </div>
+          </header>
+          
+      <main>
+        <router-outlet></router-outlet> <!-- Child routes will appear here -->
+      </main>
+  
+      
+    </div>
+  </div>

@@ -6,6 +6,7 @@ import { BehaviorSubject, type Observable } from "rxjs"
   providedIn: "root",
 })
 export class NotificationService {
+  [x: string]: any
   private notifications: Notification[] = [
     {
       id: 1,

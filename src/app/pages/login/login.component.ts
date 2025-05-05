@@ -39,7 +39,7 @@ export class LoginComponent {
         } else if (roles.includes('student')) {
           this.router.navigate(['/layout/home']);
         } else if (roles.includes('professor')) {
-          window.location.href = 'https://www.facebook.com';
+          this.router.navigate(['/Enseignant/layout2'])
         } else {
           // Default fallback
           this.router.navigate(['/layout/home']);

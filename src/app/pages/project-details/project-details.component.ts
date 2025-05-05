@@ -135,19 +135,32 @@ export class ProjectDetailsComponent implements OnInit {
 
   // Create the Team Project based on the current global project
   createTeamProject() {
+    // Validate inputs
     if (!this.teamProjectName || this.members.length === 0) {
-      alert("Please enter a team project name and at least one member.")
-      return
+      alert("Please enter a team project name and at least one member.");
+      return;
     }
-
-    const created = this.projectService.createTeamProject(this.projectDetails, this.teamProjectName, this.members)
-
-    console.log("✅ Team project created:", created)
-
-    // Optionally reset
-    this.teamProjectName = ""
-    this.members = []
-    this.closeCreateProjectModal()
+  
+    // Call service and subscribe to handle the response
+    this.projectService.createTeamProject(
+      this.projectDetails.id, 
+      this.teamProjectName, 
+      this.members
+    ).subscribe({
+      next: (createdProject) => {
+        console.log("✅ Team project created:", createdProject);
+        
+        // Reset form
+        this.teamProjectName = "";
+        this.members = [];
+        this.closeCreateProjectModal();
+      
+      },
+      error: (err) => {
+        console.error("❌ Error creating team project:", err);
+        alert("Failed to create team project. Please try again.");
+      }
+    });
   }
 
   // Calendar methods

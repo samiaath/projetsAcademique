@@ -11,6 +11,12 @@ import { RegisterComponent } from './pages/register/register.component';
 import { TeamProjectComponent } from './pages/team-projects/team-projects.component';
 import { TeamProjectDetailsComponent } from './pages/team-project-details/team-project-details.component'; // Make sure this exists
 import { VoteComponent } from './pages/vote/vote.component';
+import { Layout2Component} from './pages/Enseignant/layout2/layout2.component';
+import { Notifications2Component } from './pages/Enseignant/notifications2/notifications2.component';
+import { GroupListComponent } from './pages/Enseignant/group-list/group-list.component';
+import { ProjectDetailsEComponent } from "./pages/Enseignant/project-details-e/project-details-e.component"
+import { ArchiveComponent } from './pages/Enseignant/archive/archive.component';
+import { Home2Component } from './pages/Enseignant/home2/home2.component';
 import { AdminLayoutComponent } from './admin/admin-layout/admin-layout.component';
 import { AdminHomeComponent } from './admin/admin-home/admin-home.component';
 import { GroupsManagementComponent } from './admin/groups-management/groups-management.component';
@@ -32,6 +38,15 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'Enseignant/layout2',
+    loadComponent: () => import('./pages/Enseignant/layout2/layout2.component').then(m => m.Layout2Component)
+  },
+  {
+    path: 'Enseignant/layout2',
+    loadComponent: () => import('./pages/Enseignant/layout2/layout2.component').then(m => m.Layout2Component)
+  },
+
+  {
     path: 'activate-account',
     loadComponent: () =>
       import('./pages/activate-account/activate-account.component').then(
@@ -42,7 +57,7 @@ export const routes: Routes = [
 
   
   {
-    path: 'layout',
+    path: 'layout', 
     component: LayoutComponent,
     children: [
       { path: 'home', component: HomeComponent },
@@ -56,8 +71,20 @@ export const routes: Routes = [
         component: VoteComponent
       },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
+    ],},
+  {
+    path: 'layout2', 
+    component: Layout2Component,
+    children: [
+      { path: 'home2', component: Home2Component }, // Using groups as home for now
+      { path: 'group-list', component: GroupListComponent },
+      { path: "project-details-e/:groupId/:projectId", component: ProjectDetailsEComponent },
+      { path: 'notifications', component: Notifications2Component }, // Placeholder
+      { path: 'archive', component: ArchiveComponent },
+      { path: '', redirectTo: 'home2', pathMatch: 'full' }
+    ]
       
-    ],
+    
   },
   {
     path: '',
@@ -82,3 +109,14 @@ export const routes: Routes = [
   }
   
 ];
+
+
+
+
+
+
+
+
+
+
+

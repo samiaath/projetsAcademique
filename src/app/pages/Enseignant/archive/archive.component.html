@@ -1,0 +1,68 @@
+<div class="p-8 text-center">
+  <!-- Main heading -->
+  <h1 class="text-2xl font-bold text-gray-900 mb-8">Archives des projets</h1>
+
+  <!-- Search bar -->
+  <div class="flex justify-center items-center mb-10 relative">
+    <div class="relative w-96">
+      <input 
+        type="text" 
+        [(ngModel)]="searchYear" 
+        (input)="filterProjects()" 
+        placeholder="Filtrer par année (ex: 2025)" 
+        class="w-full bg-gray-100 rounded-full py-3 px-6 pr-12 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:bg-white transition-colors"
+      />
+      <img 
+        src="assets/icons/search.svg" 
+        alt="Search Icon" 
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+      />
+    </div>
+  </div>
+
+  <!-- Project cards grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+    <div 
+      *ngFor="let project of filteredProjects" 
+      class="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm"
+    >
+      <!-- Decorative gradient bar and badge -->
+      <div class="h-3 bg-gradient-to-r from-purple-500 to-pink-500 relative">
+        <div class="absolute -bottom-4 right-4 bg-white rounded-full p-2 shadow-sm">
+          <img src="assets/icons/badge.svg" alt="Medal Icon" class="w-6 h-6" />
+        </div>
+      </div>
+
+      <!-- Project content -->
+      <div class="p-6 pt-10">
+        <!-- Project info -->
+        <div class="text-center">
+          <h2 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
+            {{ project.title }}
+          </h2>
+          <p class="font-bold text-gray-800 mb-2">{{ project.members.join(', ') }}</p>
+          <p class="text-gray-600 mb-6">{{ project.domain }}</p>
+        </div>
+
+        <!-- Avatar group -->
+        <div class="flex justify-center -space-x-3 mb-6">
+          <div 
+            *ngFor="let member of project.members" 
+            class="avatar-initial"
+            [style.background-color]="getRandomColor(member)"
+          >
+            {{ member.charAt(0) }}
+          </div>
+        </div>
+
+        <!-- View details button -->
+        <button class="w-full bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium py-2.5 px-8 rounded-full transition-colors mb-3" >
+          View details
+        </button>
+
+        <!-- Date -->
+        <p class="text-gray-500 text-sm text-center">{{ project.date }}</p>
+      </div>
+    </div>
+  </div>
+</div>
