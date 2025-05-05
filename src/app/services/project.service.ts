@@ -4,6 +4,7 @@ import { Project, Task, TeamProject, supervisor } from '../pages/project.model';
 import { map } from 'rxjs/operators';
 import { Vote } from '../pages/project.model';
 import { NotificationService } from './notification.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class ProjectService {
   private votes: Vote[] = [];
   private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
   
-  constructor(private notificationService: NotificationService) {}
+  constructor(private notificationService: NotificationService,private http: HttpClient) {}
 
   private calculateStatus(dueDate: string): string {
     const today = new Date();
@@ -31,164 +32,26 @@ export class ProjectService {
     return `${weeks} week${weeks > 1 ? 's' : ''} left`;
   }
 
-  getProjects(): Observable<Project[]> {
-    const rawProjects = [
-      {
-        id: 1,
-        title: 'A web application using HTML, CSS, and JavaScript',
-        description: 'Web Development',
-        category: 'Web Development',
-        categoryColor: 'blue',
-        dueDate: '2025-05-12',
-        supervisors: [
-          { id: 1, name: "Monsieur Fouazi Jaidi" },
-          { id: 2, name: "Madame Olfa Lamouchi" }
-        ],
-        tasks: [
-          {
-            id: 1,
-            name: 'Setup HTML Structure',
-            deliverables: 'PDF Report',
-            description: 'Create the main HTML layout for the homepage',
-            dueDate: '2025-05-10'
-          },
-          {
-            id: 2,
-            name: 'Style with CSS',
-            deliverables: 'style.css',
-            description: 'Design the UI with responsive layout',
-            dueDate: '2025-05-11'
-          }
-        ]
-      },
-      {
-        id: 2,
-        title: 'A mobile application using Android Studio',
-        description: 'Mobile Development',
-        category: 'Mobile Development',
-        categoryColor: 'green',
-        dueDate: '2025-05-12',
-        supervisors: [
-          { id: 3, name: "Monsieur Mourad Mittiti" }
-        ],
-        tasks: [
-          {
-            id: 1,
-            name: 'Design App UI in XML',
-            deliverables: 'PDF Report',
-            description: 'Create main layout',
-            dueDate: '2025-05-05'
-          },
-          {
-            id: 2,
-            name: 'Connect to Firebase',
-            deliverables: 'PDF Report',
-            description: 'Setup Firebase authentication and database',
-            dueDate: '2025-05-10'
-          }
-        ]
-      },
-      {
-        id: 3,
-        title: 'Machine Learning Model for Sentiment Analysis',
-        description: 'Build and evaluate a sentiment classifier',
-        category: 'AI/ML',
-        categoryColor: 'purple',
-        dueDate: '2025-06-20',
-        supervisors: [
-          { id: 1, name: "Monsieur Fouazi Jaidi" },
-          { id: 4, name: "Dr. Ahmed Bennour" }
-        ],
-        tasks: [
-          {
-            id: 1,
-            name: 'Data Preprocessing',
-            deliverables: 'notebook.ipynb',
-            description: 'Clean and preprocess the text data',
-            dueDate: '2025-05-15'
-          },
-          {
-            id: 2,
-            name: 'Train Classifier',
-            deliverables: 'trained_model.pkl',
-            description: 'Train and validate sentiment classifier',
-            dueDate: '2025-05-20'
-          }
-        ]
-      },
-      {
-        id: 4,
-        title: 'Database Management System for Library',
-        description: 'Design and implement a DBMS',
-        category: 'Database',
-        categoryColor: 'orange',
-        dueDate: '2025-07-01',
-        supervisors: [
-          { id: 2, name: "Madame Olfa Lamouchi" }
-        ],
-        tasks: [
-          {
-            id: 1,
-            name: 'ER Diagram and Schema Design',
-            deliverables: 'ERDiagram.pdf',
-            description: 'Create a conceptual model for the library system',
-            dueDate: '2025-05-05'
-          },
-          {
-            id: 2,
-            name: 'SQL Queries & Stored Procedures',
-            deliverables: 'sql_queries.sql',
-            description: 'Implement complex queries and procedures',
-            dueDate: '2025-05-25'
-          }
-        ]
-      },
-      {
-        id: 5,
-        title: 'Cloud Deployment using Docker and AWS',
-        description: 'Deploy a full-stack app to AWS',
-        category: 'DevOps',
-        categoryColor: 'gray',
-        dueDate: '2025-06-15',
-        supervisors: [
-          { id: 3, name: "Monsieur Mourad Mittiti" },
-          { id: 5, name: "Dr. Sami Trabelsi" }
-        ],
-        tasks: [
-          {
-            id: 1,
-            name: 'Dockerize Application',
-            deliverables: 'Dockerfile',
-            description: 'Create Docker image for the web app',
-            dueDate: '2025-05-01'
-          },
-          {
-            id: 2,
-            name: 'Deploy on EC2',
-            deliverables: 'Deployment Guide',
-            description: 'Use EC2 and S3 to deploy the app',
-            dueDate: '2025-05-08'
-          }
-        ]
-      }
-    ];
+getProjects(): Observable<Project[]> {
+  return this.http.get<Project[]>('http://localhost:8088/api/v1/projects')
+   
+    .pipe(
+      map((dtos: Project[]) =>
+        dtos.map(dto => ({
+          ...dto,
+          tasks: dto.tasks?.map(task => ({
+            ...task,
+            status: this.calculateStatus(task.dueDate)
+          })) || [],
+          status: this.calculateStatus(dto.dueDate),
+          votingEnabled: true
+        }))
+      )
+    );
+  
+}
 
-    const projects: Project[] = rawProjects.map(project => {
-      const tasks: Task[] = project.tasks.map(task => ({
-        ...task,
-        status: this.calculateStatus(task.dueDate)
-      }));
 
-      return {
-        ...project,
-        tasks,
-        status: this.calculateStatus(project.dueDate),
-        votingEnabled: true
-      };
-    });
-
-    return of(projects);
-  }
 
   getProjectById(id: string | number): Observable<Project | undefined> {
     return this.getProjects().pipe(
