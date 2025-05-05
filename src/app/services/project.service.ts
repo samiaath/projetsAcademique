@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { Project, Task, TeamProject, supervisor } from '../pages/project.model';
+import { Deliverable,DeliverableType, Project, Task, TaskSubmission, TeamProject, supervisor } from '../pages/project.model';
 import { map } from 'rxjs/operators';
 import { Vote } from '../pages/project.model';
 import { NotificationService } from './notification.service';
@@ -13,6 +13,13 @@ export class ProjectService {
   private teamProjectsSubject: BehaviorSubject<TeamProject[]> = new BehaviorSubject<TeamProject[]>(this.teamProjects);
   private votes: Vote[] = [];
   private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
+
+
+  // New properties to store task submissions and deliverables
+  private taskSubmissions: TaskSubmission[] = [];
+  private taskSubmissionsSubject = new BehaviorSubject<TaskSubmission[]>(this.taskSubmissions);
+  private deliverables: Deliverable[] = [];
+  private deliverablesSubject = new BehaviorSubject<Deliverable[]>(this.deliverables);
   
   constructor(private notificationService: NotificationService) {}
 
@@ -291,4 +298,206 @@ export class ProjectService {
     this.teamProjectsSubject.next(this.teamProjects);
     return of();
   }
+
+
+  
+  submitTask(
+    teamProjectId: number, 
+    taskId: number, 
+    deliverables: Omit<Deliverable, 'id' | 'submittedAt'>[],
+    submittedBy: string
+  ): Observable<TaskSubmission> {
+    // Check if submission already exists
+    const existingSubmissionIndex = this.taskSubmissions.findIndex(
+      s => s.teamProjectId === teamProjectId && s.taskId === taskId
+    );
+
+    // Create new deliverables with IDs and timestamps
+    const newDeliverables: Deliverable[] = deliverables.map((deliverable, index) => {
+      const id = this.getNextDeliverableId();
+      return {
+        ...deliverable,
+        id,
+        submittedAt: new Date(),
+        submittedBy
+      };
+    });
+
+    // Add deliverables to the store
+    this.deliverables = [...this.deliverables, ...newDeliverables];
+    this.deliverablesSubject.next(this.deliverables);
+
+    // Create or update the task submission
+    const submission: TaskSubmission = {
+      taskId,
+      teamProjectId,
+      isCompleted: true,
+      submittedAt: new Date(),
+      deliverables: newDeliverables
+    };
+
+    if (existingSubmissionIndex >= 0) {
+      // Update existing submission
+      this.taskSubmissions[existingSubmissionIndex] = submission;
+    } else {
+      // Add new submission
+      this.taskSubmissions.push(submission);
+    }
+    
+    this.taskSubmissionsSubject.next(this.taskSubmissions);
+
+    // Update the task status in the team project
+    this.updateTaskStatus(teamProjectId, taskId, true);
+
+    return of(submission);
+  }
+
+  /**
+   * Delete a task submission
+   */
+  deleteTaskSubmission(teamProjectId: number, taskId: number): Observable<void> {
+    // Find the submission
+    const submissionIndex = this.taskSubmissions.findIndex(
+      s => s.teamProjectId === teamProjectId && s.taskId === taskId
+    );
+
+    if (submissionIndex >= 0) {
+      // Get the submission to find its deliverables
+      const submission = this.taskSubmissions[submissionIndex];
+      
+      // Remove the deliverables
+      const deliverableIds = submission.deliverables.map(d => d.id).filter(id => id !== undefined) as number[];
+      this.deliverables = this.deliverables.filter(d => !deliverableIds.includes(d.id as number));
+      this.deliverablesSubject.next(this.deliverables);
+      
+      // Remove the submission
+      this.taskSubmissions.splice(submissionIndex, 1);
+      this.taskSubmissionsSubject.next(this.taskSubmissions);
+      
+      // Update the task status
+      this.updateTaskStatus(teamProjectId, taskId, false);
+    }
+    
+    return of(void 0);
+  }
+
+  /**
+   * Get all submissions for a team project
+   */
+  getTaskSubmissionsForTeamProject(teamProjectId: number): Observable<TaskSubmission[]> {
+    return this.taskSubmissionsSubject.pipe(
+      map(submissions => submissions.filter(s => s.teamProjectId === teamProjectId))
+    );
+  }
+
+  /**
+   * Get a specific task submission
+   */
+  getTaskSubmission(teamProjectId: number, taskId: number): Observable<TaskSubmission | undefined> {
+    return this.taskSubmissionsSubject.pipe(
+      map(submissions => submissions.find(
+        s => s.teamProjectId === teamProjectId && s.taskId === taskId
+      ))
+    );
+  }
+
+  /**
+   * Get all deliverables for a task submission
+   */
+  getDeliverablesForTask(teamProjectId: number, taskId: number): Observable<Deliverable[]> {
+    return this.deliverablesSubject.pipe(
+      map(deliverables => deliverables.filter(
+        d => d.teamProjectId === teamProjectId && d.taskId === taskId
+      ))
+    );
+  }
+
+  /**
+   * Convert legacy deliverables string to structured deliverables
+   */
+  convertLegacyDeliverablesString(
+    deliverableString: string, 
+    taskId: number, 
+    teamProjectId: number, 
+    submittedBy: string
+  ): Omit<Deliverable, 'id' | 'submittedAt'>[] {
+    if (!deliverableString) return [];
+    
+    const deliverables: Omit<Deliverable, 'id' | 'submittedAt'>[] = [];
+    const parts = deliverableString.split(/[|,]/).map(part => part.trim());
+    
+    parts.forEach(part => {
+      if (part.toLowerCase().includes('github')) {
+        const content = part.split(':').slice(1).join(':').trim();
+        deliverables.push({
+          taskId,
+          teamProjectId,
+          type: DeliverableType.GITHUB,
+          content,
+          submittedBy
+        });
+      } else if (part.toLowerCase().includes('video')) {
+        const content = part.split(':').slice(1).join(':').trim();
+        deliverables.push({
+          taskId,
+          teamProjectId,
+          type: DeliverableType.VIDEO,
+          content,
+          submittedBy
+        });
+      } else if (part.toLowerCase().includes('pdf')) {
+        const content = part.split(':').slice(1).join(':').trim();
+        deliverables.push({
+          taskId,
+          teamProjectId,
+          type: DeliverableType.PDF,
+          content,
+          submittedBy
+        });
+      }
+    });
+    
+    return deliverables;
+  }
+
+  /**
+   * Helper method to update a task's completion status in a team project
+   */
+  private updateTaskStatus(teamProjectId: number, taskId: number, isCompleted: boolean): void {
+    const teamProjectIndex = this.teamProjects.findIndex(tp => tp.teamProjectId === teamProjectId);
+    
+    if (teamProjectIndex >= 0 && this.teamProjects[teamProjectIndex].tasks) {
+      const taskIndex = this.teamProjects[teamProjectIndex].tasks!.findIndex(t => t.id === taskId);
+      
+      if (taskIndex >= 0) {
+        // Create a deep copy of the team projects array
+        const updatedTeamProjects = [...this.teamProjects];
+        
+        // Update the specific task
+        updatedTeamProjects[teamProjectIndex].tasks![taskIndex] = {
+          ...updatedTeamProjects[teamProjectIndex].tasks![taskIndex],
+          isCompleted
+        };
+        
+        // Update the state
+        this.teamProjects = updatedTeamProjects;
+        this.teamProjectsSubject.next(this.teamProjects);
+      }
+    }
+  }
+
+  /**
+   * Generate a new unique ID for deliverables
+   */
+  private getNextDeliverableId(): number {
+    return Math.max(0, ...this.deliverables.map(d => d.id || 0)) + 1;
+  }
 }
+
+
+
+
+
+
+                                         
+ 

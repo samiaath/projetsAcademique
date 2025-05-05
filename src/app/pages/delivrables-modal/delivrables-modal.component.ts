@@ -1,7 +1,8 @@
 import { Component, Input, Output, EventEmitter, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import  { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser"
-import type { TeamProject } from "../project.model"
+import type { TeamProject, Deliverable } from "../project.model"
+import { ProjectService } from "../../services/project.service"
 
 @Component({
   selector: "app-deliverables-modal",
@@ -333,49 +334,95 @@ export class DeliverablesModalComponent implements OnInit {
   // Active tab
   activeTab: "all" | "github" | "video" | "pdf" = "all"
 
-  constructor(private sanitizer: DomSanitizer) {}
+  // Store all deliverables
+  deliverables: Deliverable[] = []
+
+  constructor(
+    private sanitizer: DomSanitizer,
+    private projectService: ProjectService,
+  ) {}
 
   ngOnInit() {
-    if (this.teamProject?.tasks) {
-      const completedTasks = this.teamProject.tasks.filter((task) => task.isCompleted)
-  
-      completedTasks.forEach((task) => {
-        if (!task.deliverables) return
-  
-        // Split by pipe or comma
-        const deliverables = task.deliverables.split(/[|,]/).map((d) => d.trim())
-  
-        deliverables.forEach((d) => {
-          if (d.toLowerCase().includes('github') && d.includes('http')) {
-            // Improved GitHub URL extraction
-            const parts = d.split(':');
-            if (parts.length > 1) {
-              this.githubLink = parts.slice(1).join(':').trim(); // Join remaining parts in case URL contains colons
-            } else {
-              this.githubLink = d.trim();
-            }
-            
-            // Ensure the URL starts with https://
-            if (this.githubLink && !this.githubLink.startsWith('http')) {
-              this.githubLink = 'https://' + this.githubLink;
-            }
-          } else if (d.toLowerCase().includes("video")) {
-            if (d.includes("http")) {
-              this.videoAttachment = d.split(":")[1]?.trim() || null
-              if (this.isYouTubeVideo(this.videoAttachment)) {
-                this.safeYouTubeUrl = this.getYouTubeEmbedUrl(this.videoAttachment)
-              }
-            } else {
-              // For uploaded video files, we'll use a dummy URL
-              this.videoAttachment = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-              this.safeYouTubeUrl = this.getYouTubeEmbedUrl(this.videoAttachment)
-            }
-          } else if (d.toLowerCase().includes("pdf")) {
-            this.pdfAttachment = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-          }
-        })
-      })
+    if (!this.teamProject) {
+      console.error('TeamProject is required for DeliverablesModalComponent');
+      return;
     }
+
+    // Get all task submissions for this team project
+    this.projectService.getTaskSubmissionsForTeamProject(this.teamProject.teamProjectId).subscribe((submissions) => {
+      // Extract all deliverables
+      submissions.forEach((submission) => {
+        submission.deliverables.forEach((deliverable) => {
+          switch (deliverable.type) {
+            case "github":
+              this.githubLink = deliverable.content;
+              break;
+            case "video":
+              this.videoAttachment = deliverable.content;
+              if (this.isYouTubeVideo(deliverable.content)) {
+                this.safeYouTubeUrl = this.getYouTubeEmbedUrl(deliverable.content);
+              }
+              break;
+            case "pdf":
+              this.pdfAttachment = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+              break;
+          }
+        });
+      });
+
+      // If no structured deliverables found, fall back to legacy format
+      if (!this.hasAnyDeliverables() && this.teamProject?.tasks) {
+        this.loadLegacyDeliverables();
+      }
+    });
+  }
+
+  /**
+   * Load deliverables from legacy format (string-based)
+   */
+  private loadLegacyDeliverables(): void {
+    if (!this.teamProject || !this.teamProject.tasks) {
+      return;
+    }
+
+    const completedTasks = this.teamProject.tasks.filter((task) => task.isCompleted);
+
+    completedTasks.forEach((task) => {
+      if (!task.deliverables) return;
+
+      // Split by pipe or comma
+      const deliverables = task.deliverables.split(/[|,]/).map((d) => d.trim());
+
+      deliverables.forEach((d) => {
+        if (d.toLowerCase().includes("github") && d.includes("http")) {
+          // Improved GitHub URL extraction
+          const parts = d.split(":");
+          if (parts.length > 1) {
+            this.githubLink = parts.slice(1).join(":").trim(); // Join remaining parts in case URL contains colons
+          } else {
+            this.githubLink = d.trim();
+          }
+
+          // Ensure the URL starts with https://
+          if (this.githubLink && !this.githubLink.startsWith("http")) {
+            this.githubLink = "https://" + this.githubLink;
+          }
+        } else if (d.toLowerCase().includes("video")) {
+          if (d.includes("http")) {
+            this.videoAttachment = d.split(":")[1]?.trim() || null;
+            if (this.isYouTubeVideo(this.videoAttachment)) {
+              this.safeYouTubeUrl = this.getYouTubeEmbedUrl(this.videoAttachment);
+            }
+          } else {
+            // For uploaded video files, we'll use a dummy URL
+            this.videoAttachment = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+            this.safeYouTubeUrl = this.getYouTubeEmbedUrl(this.videoAttachment);
+          }
+        } else if (d.toLowerCase().includes("pdf")) {
+          this.pdfAttachment = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+        }
+      });
+    });
   }
 
   getYouTubeEmbedUrl(url: string | null): SafeResourceUrl {
@@ -419,6 +466,10 @@ export class DeliverablesModalComponent implements OnInit {
 
   hasPdfAttachment(): boolean {
     return this.pdfAttachment !== null
+  }
+
+  hasAnyDeliverables(): boolean {
+    return this.hasGithubLink() || this.hasVideoAttachment() || this.hasPdfAttachment()
   }
 
   setActiveTab(tab: "all" | "github" | "video" | "pdf"): void {
