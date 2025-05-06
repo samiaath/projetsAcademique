@@ -5,7 +5,7 @@ import { Notification } from '../models/project2.model';
 @Injectable({
   providedIn: 'root'
 })
-export class NotificationsService {
+export class NotificationService {
   private notifications: Notification[] = [
     {
       id: 1,
