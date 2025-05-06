@@ -20,10 +20,8 @@ export interface Vote {
 export interface supervisor{
     id: number;
     name:string;
-
-
-
 }
+
 export interface Project {
   id:number;
   title: string;
