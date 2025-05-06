@@ -65,20 +65,16 @@ export interface Notification {
   VIDEO = "video",
 }
 
-export interface Deliverable {
-  id?: number
-  taskId: number
-  teamProjectId: number
-  type: DeliverableType
-  content: string // File name, URL, or link
-  submittedAt: Date
-  submittedBy: string
-}
+
 
 export interface TaskSubmission {
+  id:number
   taskId: number
   teamProjectId: number
   isCompleted: boolean
   submittedAt: Date
-  deliverables: Deliverable[]
+  
+  type: DeliverableType
+  content: string // File name, URL, or link
+  submittedBy: string
 }

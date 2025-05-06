@@ -24,7 +24,7 @@ export class LoginComponent {
       // Vérifie si les identifiants correspondent
       if (user.email === this.email && user.password === this.password) {
         if (user.role === 'professor') {
-          this.router.navigate(['/Enseignant/layout2']);
+          this.router.navigate(['/layout2']);
         } else if (user.role === 'student') {
           this.router.navigate(['/layout']);
         } else {

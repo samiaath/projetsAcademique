@@ -1,10 +1,11 @@
+//notif
 import { Injectable } from '@angular/core';
 import { Notification } from '../models/project2.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class NotificationService {
+export class NotificationsService {
   private notifications: Notification[] = [
     {
       id: 1,

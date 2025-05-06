@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import  { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser"
-import type { TeamProject, Deliverable } from "../project.model"
+import  { TeamProject, TaskSubmission, DeliverableType } from "../project.model"
 import { ProjectService } from "../../services/project.service"
 
 @Component({
@@ -334,8 +334,8 @@ export class DeliverablesModalComponent implements OnInit {
   // Active tab
   activeTab: "all" | "github" | "video" | "pdf" = "all"
 
-  // Store all deliverables
-  deliverables: Deliverable[] = []
+  // Store all submissions
+  submissions: TaskSubmission[] = []
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -350,27 +350,27 @@ export class DeliverablesModalComponent implements OnInit {
 
     // Get all task submissions for this team project
     this.projectService.getTaskSubmissionsForTeamProject(this.teamProject.teamProjectId).subscribe((submissions) => {
-      // Extract all deliverables
+      this.submissions = submissions;
+      
+      // Extract deliverable content from submissions
       submissions.forEach((submission) => {
-        submission.deliverables.forEach((deliverable) => {
-          switch (deliverable.type) {
-            case "github":
-              this.githubLink = deliverable.content;
-              break;
-            case "video":
-              this.videoAttachment = deliverable.content;
-              if (this.isYouTubeVideo(deliverable.content)) {
-                this.safeYouTubeUrl = this.getYouTubeEmbedUrl(deliverable.content);
-              }
-              break;
-            case "pdf":
-              this.pdfAttachment = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
-              break;
-          }
-        });
+        switch (submission.type) {
+          case DeliverableType.GITHUB:
+            this.githubLink = submission.content;
+            break;
+          case DeliverableType.VIDEO:
+            this.videoAttachment = submission.content;
+            if (this.isYouTubeVideo(submission.content)) {
+              this.safeYouTubeUrl = this.getYouTubeEmbedUrl(submission.content);
+            }
+            break;
+          case DeliverableType.PDF:
+            this.pdfAttachment = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+            break;
+        }
       });
 
-      // If no structured deliverables found, fall back to legacy format
+      // If no structured submissions found, fall back to legacy format
       if (!this.hasAnyDeliverables() && this.teamProject?.tasks) {
         this.loadLegacyDeliverables();
       }

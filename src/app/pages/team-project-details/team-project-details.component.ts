@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import  { ProjectService } from "../../services/project.service"
 import  { NotificationService } from "../../services/notification.service"
-import type { TeamProject, Task, Deliverable, DeliverableType } from "../project.model"
+import  { TeamProject, Task, DeliverableType } from "../project.model"
 import { DeliverablesModalComponent } from "../delivrables-modal/delivrables-modal.component"
 import { ChatSectionComponent } from "../chat-section/chat-section.component"
 
@@ -16,16 +16,19 @@ import { ChatSectionComponent } from "../chat-section/chat-section.component"
   styleUrls: ["./team-project-details.component.scss"],
 })
 export class TeamProjectDetailsComponent implements OnInit {
+  // Make DeliverableType available to the template
+  DeliverableType = DeliverableType;
+  
   teamProject?: TeamProject
   showSubmissionModal = false
   selectedTask?: Task
   uploadedFiles: { name: string; size: number; type: string }[] = []
 
-  // New property for deliverables modal
+  // Property for deliverables modal
   showDeliverablesModal = false
 
   // Properties for deliverable submission
-  deliverableType: "pdf" | "github" | "video" = "pdf"
+  deliverableType: DeliverableType = DeliverableType.PDF
   githubLink = ""
   videoLink = ""
 
@@ -109,7 +112,7 @@ export class TeamProjectDetailsComponent implements OnInit {
     this.isEditing = task.isCompleted || false
 
     // Reset deliverable state
-    this.deliverableType = "pdf"
+    this.deliverableType = DeliverableType.PDF
     this.githubLink = ""
     this.videoLink = ""
     this.uploadedFiles = []
@@ -125,30 +128,27 @@ export class TeamProjectDetailsComponent implements OnInit {
     if (this.isEditing && this.teamProject) {
       this.projectService.getTaskSubmission(this.teamProject.teamProjectId, task.id).subscribe((submission) => {
         if (submission) {
-          // Populate form with existing deliverables
-          submission.deliverables.forEach((deliverable) => {
-            switch (deliverable.type) {
-              case "pdf":
-                this.deliverableType = "pdf"
-                this.hasPdfFile = true
-                this.uploadedFiles = [{ name: deliverable.content, size: 0, type: "application/pdf" }]
-                break
-              case "github":
-                this.deliverableType = "github"
-                this.githubLink = deliverable.content
-                this.hasGithubLink = true
-                break
-              case "video":
-                this.deliverableType = "video"
-                this.hasVideoFile = true
-                if (deliverable.content.startsWith("http")) {
-                  this.videoLink = deliverable.content
-                } else {
-                  this.uploadedFiles = [{ name: deliverable.content, size: 0, type: "video/mp4" }]
-                }
-                break
-            }
-          })
+          // Populate form with existing submission
+          this.deliverableType = submission.type
+          
+          switch (submission.type) {
+            case DeliverableType.PDF:
+              this.hasPdfFile = true
+              this.uploadedFiles = [{ name: submission.content, size: 0, type: "application/pdf" }]
+              break
+            case DeliverableType.GITHUB:
+              this.hasGithubLink = true
+              this.githubLink = submission.content
+              break
+            case DeliverableType.VIDEO:
+              this.hasVideoFile = true
+              if (submission.content.startsWith("http")) {
+                this.videoLink = submission.content
+              } else {
+                this.uploadedFiles = [{ name: submission.content, size: 0, type: "video/mp4" }]
+              }
+              break
+          }
         } else if (task.deliverables) {
           // Fall back to legacy format if no structured submission exists
           this.populateFromLegacyFormat(task.deliverables)
@@ -166,11 +166,11 @@ export class TeamProjectDetailsComponent implements OnInit {
 
     parts.forEach((d) => {
       if (d.toLowerCase().includes("github")) {
-        this.deliverableType = "github"
+        this.deliverableType = DeliverableType.GITHUB
         this.githubLink = d.split(":")[1]?.trim() || ""
         this.hasGithubLink = true
       } else if (d.toLowerCase().includes("video")) {
-        this.deliverableType = "video"
+        this.deliverableType = DeliverableType.VIDEO
         if (d.includes("http")) {
           this.videoLink = d.split(":")[1]?.trim() || ""
         } else {
@@ -178,7 +178,7 @@ export class TeamProjectDetailsComponent implements OnInit {
         }
         this.hasVideoFile = true
       } else if (d.toLowerCase().includes("pdf")) {
-        this.deliverableType = "pdf"
+        this.deliverableType = DeliverableType.PDF
         this.uploadedFiles = [{ name: d.split(":")[1]?.trim() || "PDF file", size: 0, type: "application/pdf" }]
         this.hasPdfFile = true
       }
@@ -197,13 +197,13 @@ export class TeamProjectDetailsComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0]
 
-      if (this.deliverableType === "pdf") {
+      if (this.deliverableType === DeliverableType.PDF) {
         this.uploadedPdfFile = file
         this.hasPdfFile = true
         this.pdfUrl = URL.createObjectURL(file)
         this.uploadedFiles = [{ name: file.name, size: file.size, type: file.type }]
         console.log("PDF file uploaded:", file.name)
-      } else if (this.deliverableType === "video") {
+      } else if (this.deliverableType === DeliverableType.VIDEO) {
         this.uploadedVideoFile = file
         this.hasVideoFile = true
         this.videoUrl = URL.createObjectURL(file)
@@ -213,8 +213,8 @@ export class TeamProjectDetailsComponent implements OnInit {
     }
   }
 
-  removeDeliverable(type: "pdf" | "github" | "video"): void {
-    if (type === "pdf") {
+  removeDeliverable(type: DeliverableType): void {
+    if (type === DeliverableType.PDF) {
       this.hasPdfFile = false
       this.uploadedPdfFile = null
       this.uploadedFiles = this.uploadedFiles.filter((f) => !f.type.includes("pdf"))
@@ -222,10 +222,10 @@ export class TeamProjectDetailsComponent implements OnInit {
         URL.revokeObjectURL(this.pdfUrl)
         this.pdfUrl = null
       }
-    } else if (type === "github") {
+    } else if (type === DeliverableType.GITHUB) {
       this.hasGithubLink = false
       this.githubLink = ""
-    } else if (type === "video") {
+    } else if (type === DeliverableType.VIDEO) {
       this.hasVideoFile = false
       this.videoLink = ""
       this.uploadedVideoFile = null
@@ -281,90 +281,63 @@ export class TeamProjectDetailsComponent implements OnInit {
     })
   }
 
-  // Update the submitTask method to properly handle undefined values
+  // Updated to work with the new TaskSubmission structure
   submitTask(): void {
     if (!this.selectedTask || !this.teamProject) {
       return
     }
 
-    // Create an array to hold the deliverables
-    const deliverables: Omit<Deliverable, "id" | "submittedAt">[] = []
-
-    // Add PDF deliverable
-    if (this.hasPdfFile && this.uploadedPdfFile) {
-      deliverables.push({
-        taskId: this.selectedTask.id,
-        teamProjectId: this.teamProject.teamProjectId,
-        type: "pdf" as DeliverableType,
-        content: this.uploadedPdfFile.name,
-        submittedBy: this.teamProject.members[0], // Using first team member as submitter
-      })
-    }
-
-    // Add GitHub deliverable
-    if (this.hasGithubLink && this.githubLink) {
-      deliverables.push({
-        taskId: this.selectedTask.id,
-        teamProjectId: this.teamProject.teamProjectId,
-        type: "github" as DeliverableType,
-        content: this.githubLink,
-        submittedBy: this.teamProject.members[0],
-      })
-    }
-
-    // Add Video deliverable
-    if (this.hasVideoFile) {
-      if (this.videoLink) {
-        deliverables.push({
-          taskId: this.selectedTask.id,
-          teamProjectId: this.teamProject.teamProjectId,
-          type: "video" as DeliverableType,
-          content: this.videoLink,
-          submittedBy: this.teamProject.members[0],
-        })
-      } else if (this.uploadedVideoFile) {
-        deliverables.push({
-          taskId: this.selectedTask.id,
-          teamProjectId: this.teamProject.teamProjectId,
-          type: "video" as DeliverableType,
-          content: this.uploadedVideoFile.name,
-          submittedBy: this.teamProject.members[0],
-        })
-      }
-    }
-
     // Store the task ID in a local variable to avoid accessing selectedTask after it might be cleared
     const taskId = this.selectedTask.id
     const taskName = this.selectedTask.name
+    let content = "";
+    let type = this.deliverableType;
 
-    // Submit the task with deliverables
+    // Determine the content based on the deliverable type
+    if (type === DeliverableType.PDF && this.hasPdfFile) {
+      content = this.uploadedPdfFile?.name || "PDF Report";
+    } else if (type === DeliverableType.GITHUB && this.hasGithubLink) {
+      content = this.githubLink;
+    } else if (type === DeliverableType.VIDEO && this.hasVideoFile) {
+      content = this.videoLink || this.uploadedVideoFile?.name || "Video";
+    } else {
+      console.error("No content available for the selected deliverable type");
+      return;
+    }
+
+    // Submit the task with the new structure
     this.projectService
-      .submitTask(this.teamProject.teamProjectId, taskId, deliverables, this.teamProject.members[0])
+      .submitTask(
+        this.teamProject.teamProjectId, 
+        taskId, 
+        type,
+        content,
+        this.teamProject.members[0]
+      )
       .subscribe((submission) => {
         // Update the task in the UI
         if (this.teamProject && this.teamProject.tasks) {
           const taskIndex = this.teamProject.tasks.findIndex((t) => t.id === taskId)
           if (taskIndex !== -1) {
             // Create a legacy deliverables string for backward compatibility
-            const deliverableStrings = submission.deliverables
-              .map((d) => {
-                switch (d.type) {
-                  case "pdf":
-                    return `PDF: ${d.content}`
-                  case "github":
-                    return `GitHub: ${d.content}`
-                  case "video":
-                    return `Video: ${d.content}`
-                  default:
-                    return ""
-                }
-              })
-              .filter((s) => s)
+            let deliverableString = "";
+            
+            switch (submission.type) {
+              case DeliverableType.PDF:
+                deliverableString = `PDF: ${submission.content}`;
+                break;
+              case DeliverableType.GITHUB:
+                deliverableString = `GitHub: ${submission.content}`;
+                break;
+              case DeliverableType.VIDEO:
+                deliverableString = `Video: ${submission.content}`;
+                break;
+            }
 
             this.teamProject.tasks[taskIndex] = {
               ...this.teamProject.tasks[taskIndex],
               isCompleted: true,
-              deliverables: deliverableStrings.join(" | "),
+              deliverables: deliverableString,
             }
           }
         }
@@ -391,7 +364,6 @@ export class TeamProjectDetailsComponent implements OnInit {
   }
 
   // Methods for deliverables modal
-  // Update the openDeliverablesModal method to properly handle undefined values
   openDeliverablesModal(): void {
     if (this.teamProject) {
       this.showDeliverablesModal = true
@@ -403,7 +375,6 @@ export class TeamProjectDetailsComponent implements OnInit {
   }
 
   // Method to check if the team has any completed tasks with deliverables
-  // Update the hasDeliverables method to properly handle undefined values
   hasDeliverables(): boolean {
     if (!this.teamProject || !this.teamProject.tasks) return false
 

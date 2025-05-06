@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { Deliverable,DeliverableType, Project, Task, TaskSubmission, TeamProject, supervisor } from '../pages/project.model';
+import { DeliverableType, Project, Task, TaskSubmission, TeamProject, supervisor } from '../pages/project.model';
 import { map } from 'rxjs/operators';
 import { Vote } from '../pages/project.model';
 import { NotificationService } from './notification.service';
@@ -14,12 +14,9 @@ export class ProjectService {
   private votes: Vote[] = [];
   private votesSubject = new BehaviorSubject<Vote[]>(this.votes);
 
-
-  // New properties to store task submissions and deliverables
+  // Updated property to store task submissions
   private taskSubmissions: TaskSubmission[] = [];
   private taskSubmissionsSubject = new BehaviorSubject<TaskSubmission[]>(this.taskSubmissions);
-  private deliverables: Deliverable[] = [];
-  private deliverablesSubject = new BehaviorSubject<Deliverable[]>(this.deliverables);
   
   constructor(private notificationService: NotificationService) {}
 
@@ -299,12 +296,12 @@ export class ProjectService {
     return of();
   }
 
-
-  
+  // Updated method to submit a task with the new TaskSubmission structure
   submitTask(
     teamProjectId: number, 
     taskId: number, 
-    deliverables: Omit<Deliverable, 'id' | 'submittedAt'>[],
+    type: DeliverableType,
+    content: string,
     submittedBy: string
   ): Observable<TaskSubmission> {
     // Check if submission already exists
@@ -312,28 +309,19 @@ export class ProjectService {
       s => s.teamProjectId === teamProjectId && s.taskId === taskId
     );
 
-    // Create new deliverables with IDs and timestamps
-    const newDeliverables: Deliverable[] = deliverables.map((deliverable, index) => {
-      const id = this.getNextDeliverableId();
-      return {
-        ...deliverable,
-        id,
-        submittedAt: new Date(),
-        submittedBy
-      };
-    });
+    // Generate a new ID for the submission
+    const id = this.getNextSubmissionId();
 
-    // Add deliverables to the store
-    this.deliverables = [...this.deliverables, ...newDeliverables];
-    this.deliverablesSubject.next(this.deliverables);
-
-    // Create or update the task submission
+    // Create the task submission with the new structure
     const submission: TaskSubmission = {
+      id,
       taskId,
       teamProjectId,
       isCompleted: true,
       submittedAt: new Date(),
-      deliverables: newDeliverables
+      type,
+      content,
+      submittedBy
     };
 
     if (existingSubmissionIndex >= 0) {
@@ -362,14 +350,6 @@ export class ProjectService {
     );
 
     if (submissionIndex >= 0) {
-      // Get the submission to find its deliverables
-      const submission = this.taskSubmissions[submissionIndex];
-      
-      // Remove the deliverables
-      const deliverableIds = submission.deliverables.map(d => d.id).filter(id => id !== undefined) as number[];
-      this.deliverables = this.deliverables.filter(d => !deliverableIds.includes(d.id as number));
-      this.deliverablesSubject.next(this.deliverables);
-      
       // Remove the submission
       this.taskSubmissions.splice(submissionIndex, 1);
       this.taskSubmissionsSubject.next(this.taskSubmissions);
@@ -402,17 +382,6 @@ export class ProjectService {
   }
 
   /**
-   * Get all deliverables for a task submission
-   */
-  getDeliverablesForTask(teamProjectId: number, taskId: number): Observable<Deliverable[]> {
-    return this.deliverablesSubject.pipe(
-      map(deliverables => deliverables.filter(
-        d => d.teamProjectId === teamProjectId && d.taskId === taskId
-      ))
-    );
-  }
-
-  /**
    * Convert legacy deliverables string to structured deliverables
    */
   convertLegacyDeliverablesString(
@@ -420,36 +389,46 @@ export class ProjectService {
     taskId: number, 
     teamProjectId: number, 
     submittedBy: string
-  ): Omit<Deliverable, 'id' | 'submittedAt'>[] {
+  ): TaskSubmission[] {
     if (!deliverableString) return [];
     
-    const deliverables: Omit<Deliverable, 'id' | 'submittedAt'>[] = [];
+    const submissions: TaskSubmission[] = [];
     const parts = deliverableString.split(/[|,]/).map(part => part.trim());
+    const id = this.getNextSubmissionId();
     
     parts.forEach(part => {
       if (part.toLowerCase().includes('github')) {
         const content = part.split(':').slice(1).join(':').trim();
-        deliverables.push({
+        submissions.push({
+          id,
           taskId,
           teamProjectId,
+          isCompleted: true,
+          submittedAt: new Date(),
           type: DeliverableType.GITHUB,
           content,
           submittedBy
         });
       } else if (part.toLowerCase().includes('video')) {
         const content = part.split(':').slice(1).join(':').trim();
-        deliverables.push({
+        submissions.push({
+          id,
           taskId,
           teamProjectId,
+          isCompleted: true,
+          submittedAt: new Date(),
           type: DeliverableType.VIDEO,
           content,
           submittedBy
         });
       } else if (part.toLowerCase().includes('pdf')) {
         const content = part.split(':').slice(1).join(':').trim();
-        deliverables.push({
+        submissions.push({
+          id,
           taskId,
           teamProjectId,
+          isCompleted: true,
+          submittedAt: new Date(),
           type: DeliverableType.PDF,
           content,
           submittedBy
@@ -457,7 +436,7 @@ export class ProjectService {
       }
     });
     
-    return deliverables;
+    return submissions;
   }
 
   /**
@@ -487,17 +466,9 @@ export class ProjectService {
   }
 
   /**
-   * Generate a new unique ID for deliverables
+   * Generate a new unique ID for submissions
    */
-  private getNextDeliverableId(): number {
-    return Math.max(0, ...this.deliverables.map(d => d.id || 0)) + 1;
-  }
+  private getNextSubmissionId(): number {
+    return Math.max(0, ...this.taskSubmissions.map(s => s.id || 0)) + 1;
+  }
 }
-
-
-
-
-
-
-                                         
- 
