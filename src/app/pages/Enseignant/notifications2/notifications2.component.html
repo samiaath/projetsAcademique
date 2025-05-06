@@ -60,7 +60,7 @@
           <div 
             class="relative flex items-start gap-3 p-4 rounded-lg border shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md"
             [ngClass]="{'bg-[#C74A99]/10 border-[#C74A99]/20': !notif.isRead, 'bg-white border-gray-200': notif.isRead}"
-            (click)="markAsRead(notif)"
+            (click)="navigateToNotificationSource(notif)"
           >
             <!-- Delete button -->
             <button 

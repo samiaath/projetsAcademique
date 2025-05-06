@@ -17,7 +17,7 @@ export class ArchiveService {
       date: '12/05/2025',
       year: '2025',
       category: 'Web',
-      assignedTo: 'Info 2B 2024-2025',
+      assignedTo: ['Info 2B 2024-2025',],
       description: 'Plateforme de gestion des projets académiques',
       dueDate: '12/05/2025',
       maxStudents: 2
@@ -32,7 +32,7 @@ export class ArchiveService {
       date: '12/05/2024',
       year: '2024',
       category: 'Web',
-      assignedTo: 'Indus 2B 2024-2025',
+      assignedTo: ['Indus 2B 2024-2025',],
       description: 'Plateforme de gestion des projets académiques',
       dueDate: '12/05/2024',
       maxStudents: 2
@@ -47,7 +47,7 @@ export class ArchiveService {
       date: '12/05/2023',
       year: '2023',
       category: 'Web',
-      assignedTo: 'Meac 1C 2023-2024',
+      assignedTo: ['Meac 1C 2023-2024',],
       description: 'Plateforme de gestion des projets académiques',
       dueDate: '12/05/2023',
       maxStudents: 2

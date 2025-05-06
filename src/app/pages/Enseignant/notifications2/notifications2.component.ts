@@ -75,12 +75,8 @@ export class Notifications2Component implements OnInit {
   }
 
   markAsRead(notification: Notification) {
-    this.notificationService.markAsRead(notification.id!);
-     // Navigation basée sur le type de notification
-    if (notification.type === 'task' && notification.teamProjectId) {
-      this.router.navigate(['/project-details-e/', notification.groupId, '/', notification.teamProjectId]);
-    } else if (notification.type === 'message' && notification.groupId) {
-      this.router.navigate(['/chat', notification.groupId]);
+     if (notification.id) {
+      this.notificationService.markAsRead(notification.id)
     }
     this.loadNotifications();
   }
@@ -89,6 +85,18 @@ export class Notifications2Component implements OnInit {
     this.notificationService.markAllAsRead();
     this.loadNotifications();
   }
+
+  navigateToNotificationSource(notification: Notification) {
+      // Mark as read first
+      if (notification.id && !notification.isRead) {
+        this.notificationService.markAsRead(notification.id)
+      }
+  
+      // Navigate to the action URL if available
+      if (notification.action) {
+        this.router.navigateByUrl(notification.action)
+      }
+    }
 
   openConfirmationModal(id: number, event: Event) {
     event.stopPropagation();

@@ -1,7 +1,6 @@
-// project.service.ts
 import { Injectable } from '@angular/core';
 import { Project, Task, CalendarDay } from '../models/project2.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,15 +8,15 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class HomeService {
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   projects$: Observable<Project[]> = this.projectsSubject.asObservable();
-  
+
   private currentProjectSubject = new BehaviorSubject<Project | null>(null);
   currentProject$: Observable<Project | null> = this.currentProjectSubject.asObservable();
-  
+
   private currentMonth = new Date().getMonth();
   private currentYear = new Date().getFullYear();
   private calendarDaysSubject = new BehaviorSubject<CalendarDay[]>([]);
   calendarDays$: Observable<CalendarDay[]> = this.calendarDaysSubject.asObservable();
-  
+
   months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -38,9 +37,9 @@ export class HomeService {
         category: 'Web Development',
         maxStudents: 3,
         dueDate: '12/05/2025',
-        assignedTo: 'Info 2B 2023-2024',
+        assignedTo: ['Info 2B 2023-2024'],
         tasks: [
-          { id: 1,  name: 'User Research & Analysis', dueDate: '2025-05-28'},
+          { id: 1, name: 'User Research & Analysis', dueDate: '2025-05-28' },
           { id: 2, name: 'Concept Development', dueDate: '2025-05-30' },
           { id: 3, name: 'Prototyping & Testing', dueDate: '2025-06-01' }
         ],
@@ -52,7 +51,7 @@ export class HomeService {
         category: 'Mobile Development',
         maxStudents: 4,
         dueDate: '15/05/2025',
-        assignedTo: 'Info 3A 2023-2024',
+        assignedTo: ['Info 3A 2023-2024'],
         tasks: [],
       },
       {
@@ -62,15 +61,29 @@ export class HomeService {
         category: 'Data Science',
         maxStudents: 2,
         dueDate: '20/05/2025',
-        assignedTo: 'Info 3B 2023-2024',
+        assignedTo: ['Info 3B 2023-2024'],
         tasks: [],
       }
     ];
     this.projectsSubject.next(initialProjects);
-    
+
     if (initialProjects.length > 0) {
       this.setCurrentProject(initialProjects[0]);
     }
+  }
+
+  getGroups(): Observable<string[]> {
+    const groups = [
+      'Info 2A 2023-2024',
+      'Info 2C 2023-2024',
+      'Info 2D 2023-2024',
+      'Indus 1A 2023-2024',
+      'Info 1B 2023-2024',
+      'Meca 2B 2023-2024',
+      'Info 1A 2023-2024',
+      'Infotro 3B 2023-2024',
+    ];
+    return of(groups);
   }
 
   getAllProjects(): Project[] {
@@ -81,7 +94,7 @@ export class HomeService {
     if (!searchText.trim()) {
       return this.getAllProjects();
     }
-    return this.getAllProjects().filter(project => 
+    return this.getAllProjects().filter(project =>
       project.title.toLowerCase().includes(searchText.toLowerCase())
     );
   }
@@ -92,8 +105,8 @@ export class HomeService {
 
   setCurrentProject(project: Project): void {
     this.currentProjectSubject.next(project);
-    
-    const deadlineDate = this.parseDate(project.dueDate);
+
+    const deadlineDate = this.parseDate(project.dueDate!);
     if (deadlineDate) {
       this.currentMonth = deadlineDate.getMonth();
       this.currentYear = deadlineDate.getFullYear();
@@ -108,7 +121,7 @@ export class HomeService {
   }
 
   updateProject(updatedProject: Project): void {
-    const projects = this.projectsSubject.value.map(p => 
+    const projects = this.projectsSubject.value.map(p =>
       p.id === updatedProject.id ? updatedProject : p
     );
     this.projectsSubject.next(projects);
@@ -118,7 +131,7 @@ export class HomeService {
   deleteProject(projectId: number): void {
     const projects = this.projectsSubject.value.filter(p => p.id !== projectId);
     this.projectsSubject.next(projects);
-    
+
     if (projects.length > 0) {
       this.setCurrentProject(projects[0]);
     } else {
@@ -131,18 +144,18 @@ export class HomeService {
       if (p.id === projectId) {
         return {
           ...p,
-          tasks: [...p.tasks!, task]
+          tasks: [...(p.tasks || []), task]
         };
       }
       return p;
     });
-    
+
     this.projectsSubject.next(projects);
     const updatedProject = projects.find(p => p.id === projectId);
     if (updatedProject) {
       this.currentProjectSubject.next(updatedProject);
     }
-    
+
     const deadlineDate = new Date(task.dueDate);
     this.currentMonth = deadlineDate.getMonth();
     this.currentYear = deadlineDate.getFullYear();
@@ -189,7 +202,7 @@ export class HomeService {
         isCurrentMonth: false
       });
     }
-    
+
     this.calendarDaysSubject.next(calendarDays);
   }
 
@@ -228,19 +241,19 @@ export class HomeService {
   hasDeadlineOnDay(day: CalendarDay): boolean {
     const currentProject = this.currentProjectSubject.value;
     if (!currentProject) return false;
-    
-    const deadlineDate = this.parseDate(currentProject.dueDate);
-    if (deadlineDate && 
-        day.day === deadlineDate.getDate() && 
-        day.month === deadlineDate.getMonth() && 
+
+    const deadlineDate = this.parseDate(currentProject.dueDate!);
+    if (deadlineDate &&
+        day.day === deadlineDate.getDate() &&
+        day.month === deadlineDate.getMonth() &&
         day.year === deadlineDate.getFullYear()) {
       return true;
     }
-    
-    return currentProject.tasks!.some(task => {
+
+    return (currentProject.tasks || []).some(task => {
       const taskDeadline = new Date(task.dueDate);
-      return day.day === taskDeadline.getDate() && 
-             day.month === taskDeadline.getMonth() && 
+      return day.day === taskDeadline.getDate() &&
+             day.month === taskDeadline.getMonth() &&
              day.year === taskDeadline.getFullYear();
     });
   }
@@ -248,19 +261,19 @@ export class HomeService {
   getCalendarDayColor(day: CalendarDay): string {
     const currentProject = this.currentProjectSubject.value;
     if (!currentProject) return '';
-    
-    const deadlineDate = this.parseDate(currentProject.dueDate);
-    if (deadlineDate && 
-        day.day === deadlineDate.getDate() && 
-        day.month === deadlineDate.getMonth() && 
+
+    const deadlineDate = this.parseDate(currentProject.dueDate!);
+    if (deadlineDate &&
+        day.day === deadlineDate.getDate() &&
+        day.month === deadlineDate.getMonth() &&
         day.year === deadlineDate.getFullYear()) {
       return '#4B5563'; // Dark gray for project deadline
     }
-    
-    for (let i = 0; i < currentProject.tasks!.length; i++) {
+
+    for (let i = 0; i < (currentProject.tasks || []).length; i++) {
       const taskDeadline = new Date(currentProject.tasks![i].dueDate);
-      if (day.day === taskDeadline.getDate() && 
-          day.month === taskDeadline.getMonth() && 
+      if (day.day === taskDeadline.getDate() &&
+          day.month === taskDeadline.getMonth() &&
           day.year === taskDeadline.getFullYear()) {
         return this.getTaskColor(i); // Use task-specific color
       }
@@ -270,8 +283,8 @@ export class HomeService {
 
   isToday(day: CalendarDay): boolean {
     const today = new Date();
-    return day.day === today.getDate() && 
-           day.month === today.getMonth() && 
+    return day.day === today.getDate() &&
+           day.month === today.getMonth() &&
            day.year === today.getFullYear();
   }
 
