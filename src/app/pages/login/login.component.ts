@@ -16,23 +16,25 @@ export class LoginComponent {
   constructor(private router: Router) {}
 
   onLogin() {
-    const storedUsers = localStorage.getItem('users');
+    const storedUser = localStorage.getItem('user');
     
-    if (storedUsers) {
-      const users = JSON.parse(storedUsers);
-      
-      // Cherche l'utilisateur avec email et mot de passe correspondants
-      const user = users.find((u: any) => u.email === this.email && u.password === this.password);
-      console.log(user);
-      
-     if (user.role === 'professor') {
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+  
+      // Vérifie si les identifiants correspondent
+      if (user.email === this.email && user.password === this.password) {
+        if (user.role === 'professor') {
           this.router.navigate(['/Enseignant/layout2']);
-        
-      } else if (user.role === 'student') {
-        this.router.navigate(['/layout']);
-      }else{
+        } else if (user.role === 'student') {
+          this.router.navigate(['/layout']);
+        } else {
+          alert('Unknown role');
+        }
+      } else {
         alert('Incorrect email or password');
       }
+    } else {
+      alert('No user found. Please register.');
     }
-  
-  }}
+  }
+}

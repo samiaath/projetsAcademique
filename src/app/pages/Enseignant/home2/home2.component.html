@@ -1,30 +1,34 @@
-<div class="flex p-6 gap-6 min-h-screen bg-[#F9FAFB]">
+<div class="flex flex-wrap items-stretch min-h-screen bg-white">
   <!-- Projects List Panel -->
-  <div class="bg-[#EEECEC] rounded-2xl shadow-lg w-1/4 p-6 flex flex-col">
-    <h2 class="text-xl font-semibold mb-6 text-gray-800">All Projects</h2>
-
-    <!-- Search Box -->
-    <div class="mb-4">
-      <input
-        type="text"
-        [(ngModel)]="searchText"
-        placeholder="Search Projects..."
-        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
+  <div class="w-full md:w-1/4 px-6 py-8 bg-white rounded-l-lg border-r border-gray-200">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">All Projects</h2>
     </div>
+    <!-- Search Box -->
+    <div class="bg-[#EEECEC] min-h-[700px] flex-1 p-4 rounded-lg shadow-inner">
+      <div class="relative mb-4">
+        <input
+          type="text"
+          placeholder="Search Projects..."
+          class="w-full px-4 py-2 pl-10 border rounded-lg text-gray-800 bg-[#FFF] focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          style="border: 1px solid #ddd;"
+          [(ngModel)]="searchText"
+        >
+        <i class="fa fa-search absolute left-3 top-2.5 text-gray-500"></i>
+      </div>
 
-    <!-- Projects List -->
-    <div class="flex-1 overflow-y-auto space-y-2 pr-1">
-      <div
-        *ngFor="let project of filteredProjects"
-        class="cursor-pointer p-3 hover:bg-white rounded-lg border-l-4 transition-all duration-200"
-        [ngClass]="{
-          'bg-white border-[#1FA89E]': currentProject?.id === project.id,
-          'border-transparent': currentProject?.id !== project.id
-        }"
-        (click)="viewProject(project)"
-      >
-        {{ project.title }}
+      <!-- Projects List -->
+      <div class="flex flex-col gap-2">
+        <div
+          *ngFor="let project of filteredProjects"
+          class="bg-white p-3 rounded shadow-sm hover:shadow-md transition cursor-pointer"
+          [ngClass]="{
+            'border-l-4 border-[#1FA89E]': currentProject?.id === project.id
+          }"
+          (click)="viewProject(project)"
+        >
+          <span class="font-semibold text-gray-800">{{ project.title }}</span>
+        </div>
       </div>
     </div>
 
@@ -32,7 +36,7 @@
     <div class="mt-6">
       <button
         (click)="createNewProject()"
-        class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2"
+        class="w-full bg-[#D9D9D9] hover:bg-[#C4C4C4] text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition duration-300 shadow-sm"
       >
         <span class="text-[#1FA89E] text-xl">+</span> Add New Project
       </button>
@@ -41,72 +45,72 @@
 
   <!-- Main Content Area -->
   <div class="flex-1 flex flex-col gap-6">
-    <!-- Create/Edit Project Form -->
-    <div *ngIf="isCreatingProject || isEditingProject" class="flex gap-6">
+    <!-- Create Project Form -->
+    <div *ngIf="isCreatingProject" class="flex gap-6 mt-9 ml-7">
       <!-- Form -->
-      <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 flex-1">
+      <div class="bg-[#EEECEC] rounded-lg shadow-xl p-6 flex-1">
         <form [formGroup]="projectForm" (ngSubmit)="confirmSaveProject()" class="flex flex-col h-full">
-          <h2 class="text-xl font-semibold mb-6 text-gray-800">General Informations</h2>
+          <h2 class="text-xl font-semibold mb-6 text-gray-800">General Information</h2>
 
           <!-- Project Name -->
+          <div class="mb-2">
+            <h1>Project Title</h1>
+          </div>
           <div class="mb-4">
-            <div class="flex items-center gap-2">
-              <input
-                formControlName="name"
-                type="text"
-                placeholder="Enter project name"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-              <div class="flex gap-2">
-                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="editField('name')">
-                  <i class="fas fa-pencil-alt text-blue-500"></i>
-                </button>
-                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteField('name')">
-                  <i class="fas fa-trash-alt text-red-500"></i>
-                </button>
-              </div>
-            </div>
+            <input
+              formControlName="name"
+              type="text"
+              placeholder="Enter project name"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
           </div>
 
           <!-- Project Description -->
+          <div class="mb-2">
+            <h1>Description</h1>
+          </div>
           <div class="mb-4">
-            <div class="flex items-start gap-2">
-              <textarea
-                formControlName="description"
-                placeholder="Describe your project"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 h-28"
-              ></textarea>
-              <div class="flex gap-2">
-                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="editField('description')">
-                  <i class="fas fa-pencil-alt text-blue-500"></i>
-                </button>
-                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteField('description')">
-                  <i class="fas fa-trash-alt text-red-500"></i>
-                </button>
-              </div>
-            </div>
+            <textarea
+              formControlName="description"
+              placeholder="Describe your project"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 h-28"
+            ></textarea>
           </div>
 
           <!-- Assigned To -->
-          <div class="mb-4">
-            <div class="flex items-center gap-2">
-              <select
-                formControlName="assignedTo"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          <div class="mb-2">
+            <h1>Assigned to</h1>
+          </div>
+          <div class="w-full bg-white p-2 border border-gray-300 rounded-lg mb-4 relative">
+            <!-- Container for selected tags and input -->
+            <div class="tag-container flex flex-wrap items-center gap-2 p-2">
+              <!-- Display selected tags -->
+              <span *ngFor="let value of projectForm.get('assignedTo')?.value" class="instagram-tag">
+                {{ getGroupLabel(value) }}
+                <i class="fas fa-times ml-1 cursor-pointer" (click)="removeGroup(value)"></i>
+              </span>
+              <!-- Input field to filter options -->
+              <input
+                type="text"
+                class="flex-1 outline-none"
+                placeholder="Select group(s)..."
+                (input)="filterGroupOptions($event)"
+                (focus)="onGroupInputFocus()"
+                (blur)="onGroupInputBlur()"
+              />
+            </div>
+
+            <!-- Custom dropdown list -->
+            <div
+              *ngIf="showGroupList"
+              class="custom-list mt-1 border border-gray-200 rounded-lg shadow-lg bg-gradient-to-br from-pink-100 to-blue-100 max-h-48 overflow-y-auto absolute w-full z-10"
+            >
+              <div
+                *ngFor="let option of filteredGroupOptions"
+                class="custom-option px-4 py-2 cursor-pointer hover:bg-gradient-to-r hover:from-pink-200 hover:to-blue-200"
+                (click)="selectGroup(option)"
               >
-                <option value="" disabled>Select a group</option>
-                <option value="Info 2A 2023-2024">Info 2A 2023-2024</option>
-                <option value="Info 2B 2023-2024">Info 2B 2023-2024</option>
-                <option value="Info 3A 2023-2024">Info 3A 2023-2024</option>
-                <option value="Info 3B 2023-2024">Info 3B 2023-2024</option>
-              </select>
-              <div class="flex gap-2">
-                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="editField('assignedTo')">
-                  <i class="fas fa-pencil-alt text-blue-500"></i>
-                </button>
-                <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteField('assignedTo')">
-                  <i class="fas fa-trash-alt text-red-500"></i>
-                </button>
+                {{ option.label }}
               </div>
             </div>
           </div>
@@ -132,8 +136,8 @@
       </div>
 
       <!-- Right Panel with Calendar and Max Students -->
-      <div class="w-1/3 flex flex-col gap-6">
-        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6">
+      <div class="w-1/3 flex flex-col gap-6 mt-1 ml-1">
+        <div class="bg-[#EEECEC] rounded-lg shadow-xl p-6">
           <label class="block text-lg font-medium text-gray-700 mb-4">Maximum Number of Students per Group</label>
           <input
             formControlName="maxStudents"
@@ -143,7 +147,7 @@
           >
         </div>
 
-        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 flex-1">
+        <div class="bg-[#EEECEC] rounded-lg shadow-xl p-6 flex-1">
           <h2 class="text-lg font-semibold mb-4">Deadline</h2>
           <div class="flex justify-between items-center mb-4">
             <button (click)="prevMonth()" class="text-gray-600 hover:text-gray-800">
@@ -180,69 +184,53 @@
       </div>
     </div>
 
-    <!-- Tasks Section for Create/Edit Mode -->
-    <ng-container *ngIf="isCreatingProject || isEditingProject">
-      <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 w-full">
+    <!-- Tasks Section for Create Mode -->
+    <ng-container *ngIf="isCreatingProject">
+      <div class="bg-[#EEECEC] rounded-lg shadow-xl ml-7 mr-1 mt-1 p-8">
         <h2 class="text-lg font-semibold mb-4">Tasks</h2>
-        <div class="space-y-3" formArrayName="tasks">
-          <div *ngFor="let task of tasksArray.controls; let i = index" [formGroupName]="i" class="flex items-center gap-2">
-            <input formControlName="title" placeholder="Task Title" class="w-full p-3 border border-gray-300 rounded-lg" readonly (click)="openEditTaskModal(i)">
-            <div class="flex gap-2">
-              <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="openEditTaskModal(i)">
-                <i class="fas fa-pencil-alt text-blue-500"></i>
-              </button>
-              <button type="button" class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteTask(i)">
-                <i class="fas fa-trash-alt text-red-500"></i>
-              </button>
+        <div class="space-y-3 mb-4">
+          <div *ngFor="let task of tasksArray.controls; let i = index"
+               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border-l-4"
+               [ngStyle]="{'border-color': getTaskColor(i)}"
+               [ngClass]="{'hover:bg-gray-100': true}"
+          >
+            <div class="flex items-center gap-3">
+              <span class="font-medium">{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</span>
+              <span>{{ task.get('name')?.value }}</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span [ngClass]="{
+                'text-red-500': isCloseToDeadline(task.get('dueDate')?.value, 2),
+                'text-amber-500': isCloseToDeadline(task.get('dueDate')?.value, 5),
+                'text-green-500': !isCloseToDeadline(task.get('dueDate')?.value, 5)
+              }">Deadline: {{ formatTaskDeadline(task.get('dueDate')?.value) }}</span>
             </div>
           </div>
         </div>
-        <button type="button" (click)="addTaskToForm()" class="mt-4 w-full bg-[#1FA89E] hover:bg-[#1A8C83] text-white py-2 px-4 rounded-lg">
+        <button type="button" (click)="openTaskModal()" class="w-full bg-[#1FA89E] hover:bg-[#1A8C83] text-white py-2 px-4 rounded-lg">
           + Add Task
         </button>
       </div>
     </ng-container>
 
     <!-- Project View -->
-    <ng-container *ngIf="currentProject && !isCreatingProject && !isEditingProject">
-      <div class="flex gap-6">
-        <!-- Project Description Card (Next to Projects List) -->
-        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 flex-1">
+    <ng-container *ngIf="currentProject && !isCreatingProject">
+      <div class="flex gap-6 mt-9 ml-7">
+        <!-- Project Description Card -->
+        <div class="bg-[#EEECEC] rounded-lg shadow-xl p-8 flex-1">
           <h1 class="text-2xl font-bold mb-2 flex items-center gap-2">
             {{ currentProject.title }}
-            <button class="p-1 hover:bg-gray-100 rounded-full" (click)="editProject()">
-              <i class="fas fa-pencil-alt text-blue-500"></i>
-            </button>
-            <button class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteProject()">
-              <i class="fas fa-trash-alt text-red-500"></i>
-            </button>
           </h1>
 
-          <h2 class="font-medium mb-2 flex items-center gap-2 mt-4">
-            Project Description
-            <button class="p-1 hover:bg-gray-100 rounded-full">
-              <i class="fas fa-pencil-alt text-blue-500"></i>
-            </button>
-            <button class="p-1 hover:bg-gray-100 rounded-full">
-              <i class="fas fa-trash-alt text-red-500"></i>
-            </button>
-          </h2>
+          <h2 class="font-medium mb-2">Project Description</h2>
           <p class="text-gray-700 mb-4">{{ currentProject.description }}</p>
 
-          <h2 class="font-medium mb-2 flex items-center gap-2">
-            Assigned To
-            <button class="p-1 hover:bg-gray-100 rounded-full">
-              <i class="fas fa-pencil-alt text-blue-500"></i>
-            </button>
-            <button class="p-1 hover:bg-gray-100 rounded-full">
-              <i class="fas fa-trash-alt text-red-500"></i>
-            </button>
-          </h2>
-          <p class="text-gray-700 mb-4">{{ currentProject.assignedTo }}</p>
+          <h2 class="font-medium mb-2">Assigned To</h2>
+          <p class="text-gray-700 mb-4">{{ currentProject?.assignedTo?.join(', ') }}</p>
         </div>
 
-        <!-- Calendar (Next to Description Card) -->
-        <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 w-1/3">
+        <!-- Calendar -->
+        <div class="bg-[#EEECEC] rounded-lg shadow-xl p-6 w-1/3">
           <h2 class="text-lg font-semibold mb-4">Deadline</h2>
           <div class="mb-4 text-xl font-medium text-gray-900">
             {{ currentProject.dueDate }}
@@ -281,8 +269,8 @@
         </div>
       </div>
 
-      <!-- Tasks Card (Below Description and Calendar) -->
-      <div class="bg-[#EEECEC] rounded-2xl shadow-lg p-6 w-full">
+      <!-- Tasks Card -->
+      <div class="bg-[#EEECEC] rounded-lg shadow-xl mt-1 p-6 ml-7 mr-1">
         <h2 class="text-lg font-semibold mb-4">Tasks</h2>
         <div class="space-y-3">
           <div *ngFor="let task of currentProject.tasks; let i = index"
@@ -300,14 +288,6 @@
                 'text-amber-500': isCloseToDeadline(task.dueDate, 5),
                 'text-green-500': !isCloseToDeadline(task.dueDate, 5)
               }">Deadline: {{ formatTaskDeadline(task.dueDate) }}</span>
-              <div class="flex gap-2">
-                <button class="p-1 hover:bg-gray-100 rounded-full" (click)="editTaskInProject(i)">
-                  <i class="fas fa-pencil-alt text-blue-500"></i>
-                </button>
-                <button class="p-1 hover:bg-gray-100 rounded-full" (click)="deleteTaskFromProject(i)">
-                  <i class="fas fa-trash-alt text-red-500"></i>
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -327,7 +307,7 @@
 
   <!-- Confirmation Popup -->
   <div *ngIf="showConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-xl p-6 w-1/3">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-1/3">
       <h2 class="text-xl font-semibold mb-4">Confirm Project Creation</h2>
       <p class="mb-4">Are you sure you want to save and publish this project?</p>
       <div class="flex justify-end gap-3">
@@ -349,9 +329,9 @@
     </div>
   </div>
 
-  <!-- Task Modal for Adding Tasks (Project View Mode) -->
+  <!-- Task Modal for Adding Tasks -->
   <div *ngIf="showTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-xl p-6 w-1/3">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-1/3">
       <h2 class="text-xl font-semibold mb-4">New Task</h2>
       <form [formGroup]="taskForm" (ngSubmit)="addTask()">
         <div class="mb-4">
@@ -410,73 +390,6 @@
             class="px-4 py-2 bg-[#1FA89E] text-white rounded-lg hover:bg-[#1A8C83] disabled:opacity-50"
           >
             Add
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Edit Task Modal for Create/Edit Mode -->
-  <div *ngIf="showEditTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-xl p-6 w-1/3">
-      <h2 class="text-xl font-semibold mb-4">Edit Task</h2>
-      <form [formGroup]="editTaskForm" (ngSubmit)="updateTask()">
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Task Title</label>
-          <input
-            formControlName="title"
-            type="text"
-            placeholder="Enter task title"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Task Description</label>
-          <textarea
-            formControlName="description"
-            placeholder="Describe your task"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 h-24"
-          ></textarea>
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Deliverable</label>
-          <input
-            formControlName="deliverable"
-            type="text"
-            placeholder="Enter deliverable"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
-          <input
-            formControlName="startDate"
-            type="date"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600 mb-1">Deadline</label>
-          <input
-            formControlName="deadline"
-            type="date"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-        </div>
-        <div class="flex justify-end gap-3 mt-6">
-          <button
-            type="button"
-            (click)="closeEditTaskModal()"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            [disabled]="!editTaskForm.valid"
-            class="px-4 py-2 bg-[#1FA89E] text-white rounded-lg hover:bg-[#1A8C83] disabled:opacity-50"
-          >
-            Update
           </button>
         </div>
       </form>

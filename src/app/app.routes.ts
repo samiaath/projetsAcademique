@@ -34,10 +34,6 @@ export const routes: Routes = [
     path: 'Enseignant/layout2',
     loadComponent: () => import('./pages/Enseignant/layout2/layout2.component').then(m => m.Layout2Component)
   },
-  {
-    path: 'Enseignant/layout2',
-    loadComponent: () => import('./pages/Enseignant/layout2/layout2.component').then(m => m.Layout2Component)
-  },
 
   {
     path: 'layout', 

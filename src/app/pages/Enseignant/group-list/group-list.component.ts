@@ -47,7 +47,15 @@ export class GroupListComponent implements OnInit {
   }
 
   viewProjectDetails(groupId: number, projectId: number): void {
-    this.router.navigate(["/layout2/project-details-e", groupId, projectId]);
+    const selectedProject = this.selectedGroup?.projects.find(project => project.id === projectId);
+    console.log('Selected Project:', selectedProject); // Debug log
+    if (selectedProject) {
+      this.router.navigate(["/layout2/project-details-e", groupId, projectId], {
+        state: { project: selectedProject } // Pass the project object
+      });
+    } else {
+      console.error('No project found for id:', projectId);
+    }
   }
 
   loadGroups(): void {

@@ -24,10 +24,8 @@ export class RegisterComponent {
       password: this.password,
       role: this.role
     };
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    existingUsers.push(newUser);
     // Enregistre l'utilisateur dans localStorage (tu peux gérer ça en liste plus tard)
-    localStorage.setItem('users', JSON.stringify(existingUsers));
+    localStorage.setItem('user', JSON.stringify(newUser));
     alert('Registered successfully!');
     this.router.navigate(['/login']);
   }

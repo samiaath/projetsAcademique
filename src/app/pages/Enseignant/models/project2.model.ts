@@ -1,25 +1,16 @@
-// project.model.ts
-/* -------Debut--------*/
-
 export interface Task {
-  id: number; //li aandi type string a changer
-  name: string; //andi title
+  id: number; 
+  name: string;
   description?: string;
   status?: string;
-  startDate?: Date; //zeyed aali aand samia
+  startDate?: Date; 
   deliverables?: string;
-  dueDate: string; //deadline
+  dueDate: string; 
   isCompleted?: boolean  
-  submissions?: Submission[]; //zeyda aala samia
+  submissions?: Submission[]; 
 }
 
-///////////////////
-
 export type FileType = "pdf" | "word" | "git" | "video"
-
-/**
- * Représente une soumission pour une tâche
- */
 export interface Submission {
   id: number
   fileName: string
@@ -35,66 +26,50 @@ export interface CalendarDay {
   year: number;
   isCurrentMonth: boolean;
 }
-
-//zeyda aala samia
 export interface Group {
   id: number;
   title: string;
   projects: TeamProject[];
 }
-/////////////
-
 export interface Project {
-  id: number;
-  title: string; //namefl home fl archive shiha title
-  category: string;
-  description: string;
-  dueDate: string; //deadline
-  maxStudents: number; //zeyda aala li aand samia
+  id?: number;
+  title: string; 
+  category?: string;
+  description?: string;
+  dueDate?: string; 
+  maxStudents?: number; 
   tasks?: Task[];  
-  assignedTo: string; //zeyda moch logique jimla 
+  assignedTo?: string[]; 
   status?: string;
-  date?: string; //zeydin aala samia
-  year?: string; //zeydin aala samia
-  domain?: string; //zeyda aala samia
+  date?: string; 
+  year?: string; 
+  domain?: string; 
 }
 export interface TeamProject extends Project {
-  teamProjectId: number; //andi id ena
-  teamProjectName: string; // aandi name
-  members: string[]; //name aandi li chtawali members[] fi oudh l avatar 
+  teamProjectId: number; 
+  teamProjectName: string; 
+  members: string[]; 
 }
-
 export interface Notification {
-  id?: number; // Identifiant unique de la notification
-  title: string; // Titre de la notification
-  sender: string; // Expéditeur de la notification
+  id?: number; 
+  title: string; 
+  sender: string; 
   destination?: string;
-  message: string; // Contenu du message
-  isRead?: boolean // Statut de lecture (true = lu, false = non lu)
-  createdAt?: Date; // Date de création de la notification
-  time: string; // Heure formatée (par exemple, "14:30")
-  date: string; // Date formatée (par exemple, "12/05/2025")
-  type?: "task" | "message"; // Type optionnel pour getIconBgColor (par exemple, 'assignment', 'message', 'task')
-  action?: string // URL to navigate to when notification is clicked
-  groupId?: number // For message notifications, to identify which supervisor to chat with
-  teamProjectId?: number // For task notifications, to identify which team project to view
+  message: string; 
+  isRead?: boolean;
+  createdAt?: Date; 
+  time: string; 
+  date: string; 
+  type?: "task" | "message"; 
+  action?: string  
+  groupId?: number
+  teamProjectId?: number;
 }
-
-/* -------Fin--------*/
-
-
-
-
-
-
-
-
 export interface ChatMessage {
   content: string;
   timestamp: Date;
   sender?: string;
 }
-
 // Interface pour les utilitaires de fichiers
 export interface FileUtility {
   getFileIcon(fileType: string): string;

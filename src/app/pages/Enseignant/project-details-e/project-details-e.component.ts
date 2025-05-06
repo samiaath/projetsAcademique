@@ -1,67 +1,67 @@
-// project-details.component.ts
-import { Component, type OnInit, ViewChild, type ElementRef } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ActivatedRoute } from "@angular/router";
-import { FormsModule } from "@angular/forms";
-import { GroupService } from "../services-enseignant/group.service";
-import { ProjectDetailsService } from "../services-enseignant/project-details.service";
-import { TeamProject, Task, Submission, FileType } from "../models/project2.model";
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TeamProject, Task } from '../models/project2.model';
+import { ProjectDetailsService } from '../services-enseignant/project-details.service';
+import { GroupService } from '../services-enseignant/group.service'; // Added
+
 @Component({
-  selector: "app-project-details-e",
+  selector: 'app-project-details-e',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: "./project-details-e.component.html",
-  styleUrls: ["./project-details-e.component.scss"],
+  templateUrl: './project-details-e.component.html',
+  styles: []
 })
 export class ProjectDetailsEComponent implements OnInit {
   project: TeamProject | null = null;
-  groupId: number | null = null;
-  projectId: number | null = null;
-  newMessage = "";
+  tasks: Task[] = [];
+  expandedTask: number | null = null;
   messages: string[] = [];
-
-  @ViewChild("chatContainer") chatContainer!: ElementRef;
+  newMessage: string = '';
 
   constructor(
     private route: ActivatedRoute,
-    private groupService: GroupService,
-    private projectDetailsService: ProjectDetailsService
+    private router: Router,
+    private projectDetailsService: ProjectDetailsService,
+    private groupService: GroupService // Added
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      this.groupId = params["groupId"];
-      this.projectId = params["projectId"];
+    // Retrieve the project from navigation state with type assertion
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras?.state) {
+      this.project = (navigation.extras.state as { project: TeamProject })['project'] || null;
+      console.log('Project from state:', this.project); // Debug log
+    }
 
-      if (this.groupId && this.projectId) {
-        this.loadProject();
-      }
+    // Fallback: Fetch project from GroupService if state is unavailable
+    if (!this.project) {
+      const groupId = +this.route.snapshot.paramMap.get('groupId')!;
+      const projectId = +this.route.snapshot.paramMap.get('projectId')!;
+      this.groupService.getGroups().subscribe(groups => {
+        const group = groups.find(g => g.id === groupId);
+        this.project = group?.projects.find(p => p.id === projectId) || null;
+        console.log('Project from GroupService:', this.project); // Debug log
+      });
+    }
+
+    // Load tasks from the service
+    this.tasks = this.projectDetailsService.getTasks();
+
+    // Subscribe to expanded task changes
+    this.projectDetailsService.expandedTask$.subscribe(taskId => {
+      this.expandedTask = taskId;
     });
-  }
 
-  loadProject(): void {
-    if (!this.groupId || !this.projectId) return;
-
-    this.groupService.getGroupById(this.groupId).subscribe((group) => {
-      if (group) {
-        const foundProject = group.projects.find((p) => p.id === this.projectId);
-        if (foundProject) {
-          this.project = foundProject;
-          // Mettre à jour les projectId pour les tâches
-          this.projectDetailsService.updateTasksProjectId(this.projectId!);
-        }
-      }
+    // Subscribe to messages (convert ChatMessage to string for simplicity)
+    this.projectDetailsService.messages$.subscribe(messages => {
+      this.messages = messages.map(message => message.content);
     });
-  }
 
-  // Getter pour accéder aux tâches depuis le service
-  get tasks(): Task[] {
-    return this.projectDetailsService.getTasks();
-  }
-
-  // Getter pour accéder à la tâche actuellement développée
-  get expandedTask(): number | null {
-    return this.projectDetailsService.getExpandedTask();
+    // Update tasks with projectId if needed
+    const projectId = +this.route.snapshot.paramMap.get('projectId')!;
+    this.projectDetailsService.updateTasksProjectId(projectId);
   }
 
   toggleTask(taskId: number): void {
@@ -70,25 +70,9 @@ export class ProjectDetailsEComponent implements OnInit {
 
   sendMessage(): void {
     if (this.newMessage.trim()) {
-      // Ajouter le message à la liste locale pour affichage immédiat
-      this.messages.push(this.newMessage);
-      
-      // Ajouter le message via le service (pour une utilisation future avec backend)
       this.projectDetailsService.addMessage(this.newMessage);
-      
-      console.log("Message sent:", this.newMessage);
-      this.newMessage = "";
-      
-      // Faire défiler vers le bas après l'envoi du message
-      setTimeout(() => {
-        this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-      });
+      this.newMessage = '';
     }
-  }
-
-  // Méthodes d'utilitaires de fichiers déléguées au service
-  getFileIcon(fileType: string): string {
-    return this.projectDetailsService.getFileIcon(fileType);
   }
 
   getFileColor(fileType: string): string {
@@ -97,9 +81,5 @@ export class ProjectDetailsEComponent implements OnInit {
 
   getActionLabel(fileType: string): string {
     return this.projectDetailsService.getActionLabel(fileType);
-  }
-
-  getActionIcon(fileType: string): string {
-    return this.projectDetailsService.getActionIcon(fileType);
   }
 }
